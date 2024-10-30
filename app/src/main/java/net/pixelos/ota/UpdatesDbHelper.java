@@ -32,18 +32,6 @@ public class UpdatesDbHelper extends SQLiteOpenHelper {
 
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "updates.db";
-
-    public static class UpdateEntry implements BaseColumns {
-        public static final String TABLE_NAME = "updates";
-        public static final String COLUMN_NAME_STATUS = "status";
-        public static final String COLUMN_NAME_PATH = "path";
-        public static final String COLUMN_NAME_DOWNLOAD_ID = "download_id";
-        public static final String COLUMN_NAME_TIMESTAMP = "timestamp";
-        public static final String COLUMN_NAME_TYPE = "type";
-        public static final String COLUMN_NAME_VERSION = "version";
-        public static final String COLUMN_NAME_SIZE = "size";
-    }
-
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + UpdateEntry.TABLE_NAME + " (" +
                     UpdateEntry._ID + " INTEGER PRIMARY KEY," +
@@ -54,12 +42,21 @@ public class UpdatesDbHelper extends SQLiteOpenHelper {
                     UpdateEntry.COLUMN_NAME_TYPE + " TEXT," +
                     UpdateEntry.COLUMN_NAME_VERSION + " TEXT," +
                     UpdateEntry.COLUMN_NAME_SIZE + " INTEGER)";
-
     private static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + UpdateEntry.TABLE_NAME;
 
     public UpdatesDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    private static void fillContentValues(Update update, ContentValues values) {
+        values.put(UpdateEntry.COLUMN_NAME_STATUS, update.getPersistentStatus());
+        values.put(UpdateEntry.COLUMN_NAME_PATH, update.getFile().getAbsolutePath());
+        values.put(UpdateEntry.COLUMN_NAME_DOWNLOAD_ID, update.getDownloadId());
+        values.put(UpdateEntry.COLUMN_NAME_TIMESTAMP, update.getTimestamp());
+        values.put(UpdateEntry.COLUMN_NAME_TYPE, update.getType());
+        values.put(UpdateEntry.COLUMN_NAME_VERSION, update.getVersion());
+        values.put(UpdateEntry.COLUMN_NAME_SIZE, update.getFileSize());
     }
 
     public void onCreate(SQLiteDatabase db) {
@@ -80,16 +77,6 @@ public class UpdatesDbHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         fillContentValues(update, values);
         db.insertWithOnConflict(UpdateEntry.TABLE_NAME, null, values, conflictAlgorithm);
-    }
-
-    private static void fillContentValues(Update update, ContentValues values) {
-        values.put(UpdateEntry.COLUMN_NAME_STATUS, update.getPersistentStatus());
-        values.put(UpdateEntry.COLUMN_NAME_PATH, update.getFile().getAbsolutePath());
-        values.put(UpdateEntry.COLUMN_NAME_DOWNLOAD_ID, update.getDownloadId());
-        values.put(UpdateEntry.COLUMN_NAME_TIMESTAMP, update.getTimestamp());
-        values.put(UpdateEntry.COLUMN_NAME_TYPE, update.getType());
-        values.put(UpdateEntry.COLUMN_NAME_VERSION, update.getVersion());
-        values.put(UpdateEntry.COLUMN_NAME_SIZE, update.getFileSize());
     }
 
     public void removeUpdate(String downloadId) {
@@ -155,5 +142,16 @@ public class UpdatesDbHelper extends SQLiteOpenHelper {
             cursor.close();
         }
         return updates;
+    }
+
+    public static class UpdateEntry implements BaseColumns {
+        public static final String TABLE_NAME = "updates";
+        public static final String COLUMN_NAME_STATUS = "status";
+        public static final String COLUMN_NAME_PATH = "path";
+        public static final String COLUMN_NAME_DOWNLOAD_ID = "download_id";
+        public static final String COLUMN_NAME_TIMESTAMP = "timestamp";
+        public static final String COLUMN_NAME_TYPE = "type";
+        public static final String COLUMN_NAME_VERSION = "version";
+        public static final String COLUMN_NAME_SIZE = "size";
     }
 }

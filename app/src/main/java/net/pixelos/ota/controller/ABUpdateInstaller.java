@@ -51,9 +51,8 @@ class ABUpdateInstaller {
 
     private final UpdaterController mUpdaterController;
     private final Context mContext;
-    private String mDownloadId;
-
     private final UpdateEngine mUpdateEngine;
+    private String mDownloadId;
     private boolean mBound;
 
     private boolean mFinalizing;
@@ -114,6 +113,12 @@ class ABUpdateInstaller {
         }
     };
 
+    private ABUpdateInstaller(Context context, UpdaterController updaterController) {
+        mUpdaterController = updaterController;
+        mContext = context.getApplicationContext();
+        mUpdateEngine = new UpdateEngine();
+    }
+
     static synchronized boolean isInstallingUpdate(Context context) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         return pref.getString(ABUpdateInstaller.PREF_INSTALLING_AB_ID, null) != null ||
@@ -137,14 +142,8 @@ class ABUpdateInstaller {
         return TextUtils.equals(waitingId, downloadId);
     }
 
-    private ABUpdateInstaller(Context context, UpdaterController updaterController) {
-        mUpdaterController = updaterController;
-        mContext = context.getApplicationContext();
-        mUpdateEngine = new UpdateEngine();
-    }
-
     static synchronized ABUpdateInstaller getInstance(Context context,
-            UpdaterController updaterController) {
+                                                      UpdaterController updaterController) {
         if (sInstance == null) {
             sInstance = new ABUpdateInstaller(context, updaterController);
         }
@@ -182,7 +181,7 @@ class ABUpdateInstaller {
                  InputStreamReader isr = new InputStreamReader(is);
                  BufferedReader br = new BufferedReader(isr)) {
                 List<String> lines = new ArrayList<>();
-                for (String line; (line = br.readLine()) != null;) {
+                for (String line; (line = br.readLine()) != null; ) {
                     lines.add(line);
                 }
                 headerKeyValuePairs = new String[lines.size()];

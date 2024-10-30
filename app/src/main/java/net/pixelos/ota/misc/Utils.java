@@ -32,15 +32,16 @@ import android.widget.Toast;
 
 import androidx.preference.PreferenceManager;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import net.pixelos.ota.R;
 import net.pixelos.ota.UpdatesDbHelper;
 import net.pixelos.ota.controller.UpdaterService;
 import net.pixelos.ota.model.Update;
 import net.pixelos.ota.model.UpdateBaseInfo;
 import net.pixelos.ota.model.UpdateInfo;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -125,7 +126,7 @@ public class Utils {
 
         StringBuilder json = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            for (String line; (line = br.readLine()) != null;) {
+            for (String line; (line = br.readLine()) != null; ) {
                 json.append(line);
             }
         }
@@ -229,7 +230,7 @@ public class Utils {
     /**
      * Get the offset to the compressed data of a file inside the given zip
      *
-     * @param zipFile input zip file
+     * @param zipFile   input zip file
      * @param entryPath full path of the entry
      * @return the offset of the compressed, or -1 if not found
      * @throws IllegalArgumentException if the given entry is not found
@@ -272,7 +273,6 @@ public class Utils {
      * Cleanup the download directory, which is assumed to be a privileged location
      * the user can't access and that might have stale files. This can happen if
      * the data of the application are wiped.
-     *
      */
     public static void cleanupDownloadsDir(Context context) {
         File downloadPath = getDownloadPath(context);
@@ -416,6 +416,6 @@ public class Utils {
             // ignore
         }
         // Lineage 20 and up should only be integer values (we don't have minor versions anymore)
-        return (floatVersion >= 20) ? String.valueOf((int)floatVersion) : version;
+        return (floatVersion >= 20) ? String.valueOf((int) floatVersion) : version;
     }
 }

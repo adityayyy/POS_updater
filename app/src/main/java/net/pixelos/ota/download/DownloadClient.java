@@ -20,22 +20,6 @@ import java.io.IOException;
 
 public interface DownloadClient {
 
-    interface DownloadCallback {
-        void onResponse(Headers headers);
-
-        void onSuccess();
-
-        void onFailure(boolean cancelled);
-    }
-
-    interface ProgressListener {
-        void update(long bytesRead, long contentLength, long speed, long eta);
-    }
-
-    interface Headers {
-        String get(String name);
-    }
-
     /**
      * Start the download. This method has no effect if the download already started.
      */
@@ -53,6 +37,22 @@ public interface DownloadClient {
      * Cancel the download. This method has no effect if the download isn't ongoing.
      */
     void cancel();
+
+    interface DownloadCallback {
+        void onResponse(Headers headers);
+
+        void onSuccess();
+
+        void onFailure(boolean cancelled);
+    }
+
+    interface ProgressListener {
+        void update(long bytesRead, long contentLength, long speed, long eta);
+    }
+
+    interface Headers {
+        String get(String name);
+    }
 
     final class Builder {
         private String mUrl;

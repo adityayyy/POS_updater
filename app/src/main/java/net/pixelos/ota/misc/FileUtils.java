@@ -36,49 +36,6 @@ public class FileUtils {
 
     private static final String TAG = "FileUtils";
 
-    public interface ProgressCallBack {
-        void update(int progress);
-    }
-
-    private static class CallbackByteChannel implements ReadableByteChannel {
-        private final ProgressCallBack mCallback;
-        private final long mSize;
-        private final ReadableByteChannel mReadableByteChannel;
-        private long mSizeRead;
-        private int mProgress;
-
-        private CallbackByteChannel(ReadableByteChannel readableByteChannel, long expectedSize,
-                ProgressCallBack callback) {
-            this.mCallback = callback;
-            this.mSize = expectedSize;
-            this.mReadableByteChannel = readableByteChannel;
-        }
-
-        @Override
-        public void close() throws IOException {
-            mReadableByteChannel.close();
-        }
-
-        @Override
-        public boolean isOpen() {
-            return mReadableByteChannel.isOpen();
-        }
-
-        @Override
-        public int read(ByteBuffer bb) throws IOException {
-            int read;
-            if ((read = mReadableByteChannel.read(bb)) > 0) {
-                mSizeRead += read;
-                int progress = mSize > 0 ? Math.round(mSizeRead * 100.f / mSize) : -1;
-                if (mProgress != progress) {
-                    mCallback.update(progress);
-                    mProgress = progress;
-                }
-            }
-            return read;
-        }
-    }
-
     public static void copyFile(File sourceFile, File destFile, ProgressCallBack progressCallBack)
             throws IOException {
         try (FileChannel sourceChannel = new FileInputStream(sourceFile).getChannel();
@@ -126,6 +83,49 @@ public class FileUtils {
         } catch (Exception e) {
             // ignore
             return null;
+        }
+    }
+
+    public interface ProgressCallBack {
+        void update(int progress);
+    }
+
+    private static class CallbackByteChannel implements ReadableByteChannel {
+        private final ProgressCallBack mCallback;
+        private final long mSize;
+        private final ReadableByteChannel mReadableByteChannel;
+        private long mSizeRead;
+        private int mProgress;
+
+        private CallbackByteChannel(ReadableByteChannel readableByteChannel, long expectedSize,
+                                    ProgressCallBack callback) {
+            this.mCallback = callback;
+            this.mSize = expectedSize;
+            this.mReadableByteChannel = readableByteChannel;
+        }
+
+        @Override
+        public void close() throws IOException {
+            mReadableByteChannel.close();
+        }
+
+        @Override
+        public boolean isOpen() {
+            return mReadableByteChannel.isOpen();
+        }
+
+        @Override
+        public int read(ByteBuffer bb) throws IOException {
+            int read;
+            if ((read = mReadableByteChannel.read(bb)) > 0) {
+                mSizeRead += read;
+                int progress = mSize > 0 ? Math.round(mSizeRead * 100.f / mSize) : -1;
+                if (mProgress != progress) {
+                    mCallback.update(progress);
+                    mProgress = progress;
+                }
+            }
+            return read;
         }
     }
 }

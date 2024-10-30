@@ -31,8 +31,8 @@ import net.pixelos.ota.model.UpdateStatus;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.Files;
+import java.nio.file.attribute.PosixFilePermission;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -42,12 +42,10 @@ class UpdateInstaller {
 
     private static UpdateInstaller sInstance = null;
     private static String sInstallingUpdate = null;
-
-    private Thread mPrepareUpdateThread;
-    private volatile boolean mCanCancel;
-
     private final Context mContext;
     private final UpdaterController mUpdaterController;
+    private Thread mPrepareUpdateThread;
+    private volatile boolean mCanCancel;
 
     private UpdateInstaller(Context context, UpdaterController controller) {
         mContext = context.getApplicationContext();
@@ -55,7 +53,7 @@ class UpdateInstaller {
     }
 
     static synchronized UpdateInstaller getInstance(Context context,
-            UpdaterController updaterController) {
+                                                    UpdaterController updaterController) {
         if (sInstance == null) {
             sInstance = new UpdateInstaller(context, updaterController);
         }
@@ -142,7 +140,8 @@ class UpdateInstaller {
                         perms.add(PosixFilePermission.OTHERS_READ);
                         perms.add(PosixFilePermission.GROUP_READ);
                         Files.setPosixFilePermissions(uncryptFile.toPath(), perms);
-                    } catch (IOException exception) {}
+                    } catch (IOException exception) {
+                    }
 
                     mCanCancel = false;
                     if (mPrepareUpdateThread.isInterrupted()) {

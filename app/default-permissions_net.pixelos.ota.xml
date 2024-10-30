@@ -17,6 +17,6 @@
 <exceptions>
     <exception package="net.pixelos.ota">
         <!-- Notifications -->
-        <permission name="android.permission.POST_NOTIFICATIONS" fixed="false"/>
+        <permission name="android.permission.POST_NOTIFICATIONS" fixed="false" />
     </exception>
 </exceptions>

@@ -37,15 +37,11 @@ import java.text.NumberFormat;
 
 public class ExportUpdateService extends Service {
 
-    private static final String TAG = "ExportUpdateService";
-
-    private static final int NOTIFICATION_ID = 16;
-
     public static final String ACTION_START_EXPORTING = "start_exporting";
-
     public static final String EXTRA_SOURCE_FILE = "source_file";
     public static final String EXTRA_DEST_URI = "dest_uri";
-
+    private static final String TAG = "ExportUpdateService";
+    private static final int NOTIFICATION_ID = 16;
     private static final String EXPORT_NOTIFICATION_CHANNEL =
             "export_notification_channel";
 
@@ -80,46 +76,6 @@ public class ExportUpdateService extends Service {
         }
 
         return START_NOT_STICKY;
-    }
-
-    private class ExportRunnable implements Runnable {
-        private final ContentResolver mContentResolver;
-        private final File mSource;
-        private final Uri mDestination;
-        private final FileUtils.ProgressCallBack mProgressCallBack;
-        private final Runnable mRunnableComplete;
-        private final Runnable mRunnableFailed;
-
-        private ExportRunnable(ContentResolver cr, File source, Uri destination,
-                               FileUtils.ProgressCallBack progressCallBack,
-                               Runnable runnableComplete, Runnable runnableFailed) {
-            mContentResolver = cr;
-            mSource = source;
-            mDestination = destination;
-            mProgressCallBack = progressCallBack;
-            mRunnableComplete = runnableComplete;
-            mRunnableFailed = runnableFailed;
-        }
-
-        @Override
-        public void run() {
-            try {
-                FileUtils.copyFile(mContentResolver, mSource, mDestination, mProgressCallBack);
-                mIsExporting = false;
-                if (!mExportThread.isInterrupted()) {
-                    Log.d(TAG, "Completed");
-                    mRunnableComplete.run();
-                } else {
-                    Log.d(TAG, "Aborted");
-                }
-            } catch (IOException e) {
-                mIsExporting = false;
-                Log.e(TAG, "Could not copy file", e);
-                mRunnableFailed.run();
-            } finally {
-                stopSelf();
-            }
-        }
     }
 
     private void startExporting(File source, Uri destination) {
@@ -189,5 +145,45 @@ public class ExportUpdateService extends Service {
                 destination, progressCallBack, runnableComplete, runnableFailed);
         mExportThread = new Thread(exportRunnable);
         mExportThread.start();
+    }
+
+    private class ExportRunnable implements Runnable {
+        private final ContentResolver mContentResolver;
+        private final File mSource;
+        private final Uri mDestination;
+        private final FileUtils.ProgressCallBack mProgressCallBack;
+        private final Runnable mRunnableComplete;
+        private final Runnable mRunnableFailed;
+
+        private ExportRunnable(ContentResolver cr, File source, Uri destination,
+                               FileUtils.ProgressCallBack progressCallBack,
+                               Runnable runnableComplete, Runnable runnableFailed) {
+            mContentResolver = cr;
+            mSource = source;
+            mDestination = destination;
+            mProgressCallBack = progressCallBack;
+            mRunnableComplete = runnableComplete;
+            mRunnableFailed = runnableFailed;
+        }
+
+        @Override
+        public void run() {
+            try {
+                FileUtils.copyFile(mContentResolver, mSource, mDestination, mProgressCallBack);
+                mIsExporting = false;
+                if (!mExportThread.isInterrupted()) {
+                    Log.d(TAG, "Completed");
+                    mRunnableComplete.run();
+                } else {
+                    Log.d(TAG, "Aborted");
+                }
+            } catch (IOException e) {
+                mIsExporting = false;
+                Log.e(TAG, "Could not copy file", e);
+                mRunnableFailed.run();
+            } finally {
+                stopSelf();
+            }
+        }
     }
 }

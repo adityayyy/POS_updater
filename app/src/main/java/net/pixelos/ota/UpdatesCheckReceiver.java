@@ -29,10 +29,11 @@ import android.util.Log;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 
-import org.json.JSONException;
 import net.pixelos.ota.download.DownloadClient;
 import net.pixelos.ota.misc.Constants;
 import net.pixelos.ota.misc.Utils;
+
+import org.json.JSONException;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,6 +49,82 @@ public class UpdatesCheckReceiver extends BroadcastReceiver {
 
     private static final String NEW_UPDATES_NOTIFICATION_CHANNEL =
             "new_updates_notification_channel";
+
+    private static void showNotification(Context context) {
+        NotificationManager notificationManager = context.getSystemService(
+                NotificationManager.class);
+        NotificationChannel notificationChannel = new NotificationChannel(
+                NEW_UPDATES_NOTIFICATION_CHANNEL,
+                context.getString(R.string.new_updates_channel_title),
+                NotificationManager.IMPORTANCE_LOW);
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context,
+                NEW_UPDATES_NOTIFICATION_CHANNEL);
+        notificationBuilder.setSmallIcon(R.drawable.ic_system_update);
+        Intent notificationIntent = new Intent(context, UpdatesActivity.class);
+        PendingIntent intent = PendingIntent.getActivity(context, 0, notificationIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        notificationBuilder.setContentIntent(intent);
+        notificationBuilder.setContentTitle(context.getString(R.string.new_updates_found_title));
+        notificationBuilder.setAutoCancel(true);
+        notificationManager.createNotificationChannel(notificationChannel);
+        notificationManager.notify(0, notificationBuilder.build());
+    }
+
+    private static PendingIntent getRepeatingUpdatesCheckIntent(Context context) {
+        Intent intent = new Intent(context, UpdatesCheckReceiver.class);
+        intent.setAction(DAILY_CHECK_ACTION);
+        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+    }
+
+    public static void updateRepeatingUpdatesCheck(Context context) {
+        cancelRepeatingUpdatesCheck(context);
+        scheduleRepeatingUpdatesCheck(context);
+    }
+
+    public static void scheduleRepeatingUpdatesCheck(Context context) {
+        if (!Utils.isUpdateCheckEnabled(context)) {
+            return;
+        }
+
+        PendingIntent updateCheckIntent = getRepeatingUpdatesCheckIntent(context);
+        AlarmManager alarmMgr = context.getSystemService(AlarmManager.class);
+        alarmMgr.setRepeating(AlarmManager.RTC, System.currentTimeMillis() +
+                        Utils.getUpdateCheckInterval(context), Utils.getUpdateCheckInterval(context),
+                updateCheckIntent);
+
+        Date nextCheckDate = new Date(System.currentTimeMillis() +
+                Utils.getUpdateCheckInterval(context));
+        Log.d(TAG, "Setting automatic updates check: " + nextCheckDate);
+    }
+
+    public static void cancelRepeatingUpdatesCheck(Context context) {
+        AlarmManager alarmMgr = context.getSystemService(AlarmManager.class);
+        alarmMgr.cancel(getRepeatingUpdatesCheckIntent(context));
+    }
+
+    private static PendingIntent getUpdatesCheckIntent(Context context) {
+        Intent intent = new Intent(context, UpdatesCheckReceiver.class);
+        intent.setAction(ONESHOT_CHECK_ACTION);
+        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+    }
+
+    public static void scheduleUpdatesCheck(Context context) {
+        long millisToNextCheck = AlarmManager.INTERVAL_HOUR * 2;
+        PendingIntent updateCheckIntent = getUpdatesCheckIntent(context);
+        AlarmManager alarmMgr = context.getSystemService(AlarmManager.class);
+        alarmMgr.set(AlarmManager.ELAPSED_REALTIME,
+                SystemClock.elapsedRealtime() + millisToNextCheck,
+                updateCheckIntent);
+
+        Date nextCheckDate = new Date(System.currentTimeMillis() + millisToNextCheck);
+        Log.d(TAG, "Setting one-shot updates check: " + nextCheckDate);
+    }
+
+    public static void cancelUpdatesCheck(Context context) {
+        AlarmManager alarmMgr = context.getSystemService(AlarmManager.class);
+        alarmMgr.cancel(getUpdatesCheckIntent(context));
+        Log.d(TAG, "Cancelling pending one-shot check");
+    }
 
     @Override
     public void onReceive(final Context context, Intent intent) {
@@ -120,81 +197,5 @@ public class UpdatesCheckReceiver extends BroadcastReceiver {
             Log.e(TAG, "Could not fetch list, scheduling new check", e);
             scheduleUpdatesCheck(context);
         }
-    }
-
-    private static void showNotification(Context context) {
-        NotificationManager notificationManager = context.getSystemService(
-                NotificationManager.class);
-        NotificationChannel notificationChannel = new NotificationChannel(
-                NEW_UPDATES_NOTIFICATION_CHANNEL,
-                context.getString(R.string.new_updates_channel_title),
-                NotificationManager.IMPORTANCE_LOW);
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context,
-                NEW_UPDATES_NOTIFICATION_CHANNEL);
-        notificationBuilder.setSmallIcon(R.drawable.ic_system_update);
-        Intent notificationIntent = new Intent(context, UpdatesActivity.class);
-        PendingIntent intent = PendingIntent.getActivity(context, 0, notificationIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        notificationBuilder.setContentIntent(intent);
-        notificationBuilder.setContentTitle(context.getString(R.string.new_updates_found_title));
-        notificationBuilder.setAutoCancel(true);
-        notificationManager.createNotificationChannel(notificationChannel);
-        notificationManager.notify(0, notificationBuilder.build());
-    }
-
-    private static PendingIntent getRepeatingUpdatesCheckIntent(Context context) {
-        Intent intent = new Intent(context, UpdatesCheckReceiver.class);
-        intent.setAction(DAILY_CHECK_ACTION);
-        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
-    }
-
-    public static void updateRepeatingUpdatesCheck(Context context) {
-        cancelRepeatingUpdatesCheck(context);
-        scheduleRepeatingUpdatesCheck(context);
-    }
-
-    public static void scheduleRepeatingUpdatesCheck(Context context) {
-        if (!Utils.isUpdateCheckEnabled(context)) {
-            return;
-        }
-
-        PendingIntent updateCheckIntent = getRepeatingUpdatesCheckIntent(context);
-        AlarmManager alarmMgr = context.getSystemService(AlarmManager.class);
-        alarmMgr.setRepeating(AlarmManager.RTC, System.currentTimeMillis() +
-                Utils.getUpdateCheckInterval(context), Utils.getUpdateCheckInterval(context),
-                updateCheckIntent);
-
-        Date nextCheckDate = new Date(System.currentTimeMillis() +
-                Utils.getUpdateCheckInterval(context));
-        Log.d(TAG, "Setting automatic updates check: " + nextCheckDate);
-    }
-
-    public static void cancelRepeatingUpdatesCheck(Context context) {
-        AlarmManager alarmMgr = context.getSystemService(AlarmManager.class);
-        alarmMgr.cancel(getRepeatingUpdatesCheckIntent(context));
-    }
-
-    private static PendingIntent getUpdatesCheckIntent(Context context) {
-        Intent intent = new Intent(context, UpdatesCheckReceiver.class);
-        intent.setAction(ONESHOT_CHECK_ACTION);
-        return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
-    }
-
-    public static void scheduleUpdatesCheck(Context context) {
-        long millisToNextCheck = AlarmManager.INTERVAL_HOUR * 2;
-        PendingIntent updateCheckIntent = getUpdatesCheckIntent(context);
-        AlarmManager alarmMgr = context.getSystemService(AlarmManager.class);
-        alarmMgr.set(AlarmManager.ELAPSED_REALTIME,
-                SystemClock.elapsedRealtime() + millisToNextCheck,
-                updateCheckIntent);
-
-        Date nextCheckDate = new Date(System.currentTimeMillis() + millisToNextCheck);
-        Log.d(TAG, "Setting one-shot updates check: " + nextCheckDate);
-    }
-
-    public static void cancelUpdatesCheck(Context context) {
-        AlarmManager alarmMgr = context.getSystemService(AlarmManager.class);
-        alarmMgr.cancel(getUpdatesCheckIntent(context));
-        Log.d(TAG, "Cancelling pending one-shot check");
     }
 }

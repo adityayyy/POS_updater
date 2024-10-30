@@ -1,7 +1,7 @@
-import java.util.Properties
 import org.lineageos.generatebp.GenerateBpPlugin
 import org.lineageos.generatebp.GenerateBpPluginExtension
 import org.lineageos.generatebp.models.Module
+import java.util.Properties
 
 plugins {
     id("com.android.application")

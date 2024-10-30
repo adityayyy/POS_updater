@@ -48,13 +48,9 @@ public class UpdaterController {
     public static final String ACTION_UPDATE_REMOVED = "action_update_removed";
     public static final String ACTION_UPDATE_STATUS = "action_update_status_change";
     public static final String EXTRA_DOWNLOAD_ID = "extra_download_id";
-
-    private final String TAG = "UpdaterController";
-
-    private static UpdaterController sUpdaterController;
-
     private static final int MAX_REPORT_INTERVAL_MS = 1000;
-
+    private static UpdaterController sUpdaterController;
+    private final String TAG = "UpdaterController";
     private final Context mContext;
     private final LocalBroadcastManager mBroadcastManager;
     private final UpdatesDbHelper mUpdatesDbHelper;
@@ -62,16 +58,9 @@ public class UpdaterController {
     private final PowerManager.WakeLock mWakeLock;
 
     private final File mDownloadRoot;
-
-    private int mActiveDownloads = 0;
     private final Set<String> mVerifyingUpdates = new HashSet<>();
-
-    public static synchronized UpdaterController getInstance(Context context) {
-        if (sUpdaterController == null) {
-            sUpdaterController = new UpdaterController(context);
-        }
-        return sUpdaterController;
-    }
+    private final Map<String, DownloadEntry> mDownloads = new HashMap<>();
+    private int mActiveDownloads = 0;
 
     private UpdaterController(Context context) {
         mBroadcastManager = LocalBroadcastManager.getInstance(context);
@@ -89,15 +78,12 @@ public class UpdaterController {
         }
     }
 
-    private static class DownloadEntry {
-        final Update mUpdate;
-        DownloadClient mDownloadClient;
-        private DownloadEntry(Update update) {
-            mUpdate = update;
+    public static synchronized UpdaterController getInstance(Context context) {
+        if (sUpdaterController == null) {
+            sUpdaterController = new UpdaterController(context);
         }
+        return sUpdaterController;
     }
-
-    private final Map<String, DownloadEntry> mDownloads = new HashMap<>();
 
     void notifyUpdateChange(String downloadId) {
         Intent intent = new Intent();
@@ -552,5 +538,14 @@ public class UpdaterController {
             return;
         }
         ABUpdateInstaller.getInstance(mContext, this).setPerformanceMode(enable);
+    }
+
+    private static class DownloadEntry {
+        final Update mUpdate;
+        DownloadClient mDownloadClient;
+
+        private DownloadEntry(Update update) {
+            mUpdate = update;
+        }
     }
 }

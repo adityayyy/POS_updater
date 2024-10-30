@@ -64,7 +64,6 @@ import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.snackbar.Snackbar;
 
-import org.json.JSONException;
 import net.pixelos.ota.controller.UpdaterController;
 import net.pixelos.ota.controller.UpdaterService;
 import net.pixelos.ota.download.DownloadClient;
@@ -74,6 +73,8 @@ import net.pixelos.ota.misc.StringGenerator;
 import net.pixelos.ota.misc.Utils;
 import net.pixelos.ota.model.Update;
 import net.pixelos.ota.model.UpdateInfo;
+
+import org.json.JSONException;
 
 import java.io.File;
 import java.io.IOException;
@@ -91,6 +92,25 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
 
     private View mRefreshIconView;
     private RotateAnimation mRefreshAnimation;
+
+    private final ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            UpdaterService.LocalBinder binder = (UpdaterService.LocalBinder) service;
+            mUpdaterService = binder.getService();
+            mAdapter.setUpdaterController(mUpdaterService.getUpdaterController());
+            getUpdatesList();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            mAdapter.setUpdaterController(null);
+            mUpdaterService = null;
+            mAdapter.notifyDataSetChanged();
+        }
+    };
+
     private UpdateInfo mToBeExported = null;
     private final ActivityResultLauncher<Intent> mExportUpdate = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -103,7 +123,6 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
                     }
                 }
             });
-
     private UpdateImporter mUpdateImporter;
     @SuppressWarnings("deprecation")
     private ProgressDialog importDialog;
@@ -333,24 +352,6 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
                 .setOnCancelListener((dialog) -> deleteUpdate.run())
                 .show();
     }
-
-    private final ServiceConnection mConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName className,
-                IBinder service) {
-            UpdaterService.LocalBinder binder = (UpdaterService.LocalBinder) service;
-            mUpdaterService = binder.getService();
-            mAdapter.setUpdaterController(mUpdaterService.getUpdaterController());
-            getUpdatesList();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            mAdapter.setUpdaterController(null);
-            mUpdaterService = null;
-            mAdapter.notifyDataSetChanged();
-        }
-    };
 
     private void loadUpdatesList(File jsonFile, boolean manualRefresh)
             throws IOException, JSONException {

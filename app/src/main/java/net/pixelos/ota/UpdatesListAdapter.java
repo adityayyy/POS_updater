@@ -15,12 +15,10 @@
  */
 package net.pixelos.ota;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.PowerManager;
 import android.text.format.Formatter;
@@ -38,8 +36,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.view.ContextThemeWrapper;
@@ -53,7 +49,6 @@ import com.google.android.material.snackbar.Snackbar;
 
 import net.pixelos.ota.controller.UpdaterController;
 import net.pixelos.ota.controller.UpdaterService;
-import net.pixelos.ota.misc.BuildInfoUtils;
 import net.pixelos.ota.misc.Constants;
 import net.pixelos.ota.misc.StringGenerator;
 import net.pixelos.ota.misc.Utils;
@@ -78,53 +73,11 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
             | BatteryManager.BATTERY_PLUGGED_WIRELESS;
 
     private final float mAlphaDisabledValue;
-
+    private final UpdatesListActivity mActivity;
     private List<String> mDownloadIds;
     private String mSelectedDownload;
     private UpdaterController mUpdaterController;
-    private final UpdatesListActivity mActivity;
-
     private AlertDialog infoDialog;
-
-    private enum Action {
-        DOWNLOAD,
-        PAUSE,
-        RESUME,
-        INSTALL,
-        INFO,
-        DELETE,
-        CANCEL_INSTALLATION,
-        REBOOT,
-    }
-
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        private final Button mAction;
-        private final ImageButton mMenu;
-
-        private final TextView mBuildDate;
-        private final TextView mBuildVersion;
-        private final TextView mBuildSize;
-
-        private final LinearLayout mProgress;
-        private final ProgressBar mProgressBar;
-        private final TextView mProgressText;
-        private final TextView mPercentage;
-
-        public ViewHolder(final View view) {
-            super(view);
-            mAction = view.findViewById(R.id.update_action);
-            mMenu = view.findViewById(R.id.update_menu);
-
-            mBuildDate = view.findViewById(R.id.build_date);
-            mBuildVersion = view.findViewById(R.id.build_version);
-            mBuildSize = view.findViewById(R.id.build_size);
-
-            mProgress = view.findViewById(R.id.progress);
-            mProgressBar = view.findViewById(R.id.progress_bar);
-            mProgressText = view.findViewById(R.id.progress_text);
-            mPercentage = view.findViewById(R.id.progress_percent);
-        }
-    }
 
     public UpdatesListAdapter(UpdatesListActivity activity) {
         mActivity = activity;
@@ -132,6 +85,14 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
         TypedValue tv = new TypedValue();
         mActivity.getTheme().resolveAttribute(android.R.attr.disabledAlpha, tv, true);
         mAlphaDisabledValue = tv.getFloat();
+    }
+
+    private static boolean isScratchMounted() {
+        try (Stream<String> lines = Files.lines(Path.of("/proc/mounts"))) {
+            return lines.anyMatch(x -> x.split(" ")[1].equals("/mnt/scratch"));
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     @NonNull
@@ -355,7 +316,7 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
     }
 
     private void setButtonAction(Button button, Action action, final String downloadId,
-            boolean enabled) {
+                                 boolean enabled) {
         final View.OnClickListener clickListener;
         switch (action) {
             case DOWNLOAD:
@@ -461,7 +422,7 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
     }
 
     private View.OnClickListener getClickListener(final UpdateInfo update,
-            final boolean canDelete, View anchor) {
+                                                  final boolean canDelete, View anchor) {
         return view -> startActionMode(update, canDelete, anchor);
     }
 
@@ -611,11 +572,43 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
         return percent >= required;
     }
 
-    private static boolean isScratchMounted() {
-        try (Stream<String> lines = Files.lines(Path.of("/proc/mounts"))) {
-            return lines.anyMatch(x -> x.split(" ")[1].equals("/mnt/scratch"));
-        } catch (IOException e) {
-            return false;
+    private enum Action {
+        DOWNLOAD,
+        PAUSE,
+        RESUME,
+        INSTALL,
+        INFO,
+        DELETE,
+        CANCEL_INSTALLATION,
+        REBOOT,
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        private final Button mAction;
+        private final ImageButton mMenu;
+
+        private final TextView mBuildDate;
+        private final TextView mBuildVersion;
+        private final TextView mBuildSize;
+
+        private final LinearLayout mProgress;
+        private final ProgressBar mProgressBar;
+        private final TextView mProgressText;
+        private final TextView mPercentage;
+
+        public ViewHolder(final View view) {
+            super(view);
+            mAction = view.findViewById(R.id.update_action);
+            mMenu = view.findViewById(R.id.update_menu);
+
+            mBuildDate = view.findViewById(R.id.build_date);
+            mBuildVersion = view.findViewById(R.id.build_version);
+            mBuildSize = view.findViewById(R.id.build_size);
+
+            mProgress = view.findViewById(R.id.progress);
+            mProgressBar = view.findViewById(R.id.progress_bar);
+            mProgressText = view.findViewById(R.id.progress_text);
+            mPercentage = view.findViewById(R.id.progress_percent);
         }
     }
 }

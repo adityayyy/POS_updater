@@ -26,10 +26,10 @@
         <activity
             android:name=".UpdatesActivity"
             android:excludeFromRecents="true"
-            android:label="@string/display_name"
             android:exported="true"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:launchMode="singleTop">
+            android:label="@string/display_name"
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter android:priority="1">
                 <action android:name="android.settings.SYSTEM_UPDATE_SETTINGS" />
 
@@ -47,25 +47,31 @@
         <service
             android:name=".controller.UpdaterService"
             android:foregroundServiceType="specialUse">
-            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="updater"/>
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="updater" />
         </service>
         <service
             android:name=".ExportUpdateService"
             android:foregroundServiceType="specialUse">
-            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="updater"/>
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="updater" />
         </service>
 
-        <receiver android:name=".UpdaterReceiver" android:exported="false">
+        <receiver
+            android:name=".UpdaterReceiver"
+            android:exported="false">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".UpdatesCheckReceiver" android:exported="true">
+        <receiver
+            android:name=".UpdatesCheckReceiver"
+            android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
     </application>

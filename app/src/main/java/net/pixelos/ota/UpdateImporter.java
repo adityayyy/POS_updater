@@ -23,13 +23,10 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
-import org.json.JSONException;
 import net.pixelos.ota.controller.UpdaterController;
-import net.pixelos.ota.controller.UpdaterService;
 import net.pixelos.ota.misc.StringGenerator;
 import net.pixelos.ota.misc.Utils;
 import net.pixelos.ota.model.Update;
-import net.pixelos.ota.model.UpdateInfo;
 import net.pixelos.ota.model.UpdateStatus;
 
 import java.io.File;
@@ -41,7 +38,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
