@@ -551,7 +551,6 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
     private void showPreferencesDialog() {
         View view = LayoutInflater.from(this).inflate(R.layout.preferences_dialog, null);
         Spinner autoCheckInterval = view.findViewById(R.id.preferences_auto_updates_check_interval);
-        SwitchCompat autoDelete = view.findViewById(R.id.preferences_auto_delete_updates);
         SwitchCompat meteredNetworkWarning = view.findViewById(
                 R.id.preferences_metered_network_warning);
         SwitchCompat abPerfMode = view.findViewById(R.id.preferences_ab_perf_mode);
@@ -563,7 +562,6 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         autoCheckInterval.setSelection(Utils.getUpdateCheckSetting(this));
-        autoDelete.setChecked(prefs.getBoolean(Constants.PREF_AUTO_DELETE_UPDATES, false));
         meteredNetworkWarning.setChecked(prefs.getBoolean(Constants.PREF_METERED_NETWORK_WARNING,
                 prefs.getBoolean(Constants.PREF_MOBILE_DATA_WARNING, true)));
         abPerfMode.setChecked(prefs.getBoolean(Constants.PREF_AB_PERF_MODE, false));
@@ -603,7 +601,6 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
                     prefs.edit()
                             .putInt(Constants.PREF_AUTO_UPDATES_CHECK_INTERVAL,
                                     autoCheckInterval.getSelectedItemPosition())
-                            .putBoolean(Constants.PREF_AUTO_DELETE_UPDATES, autoDelete.isChecked())
                             .putBoolean(Constants.PREF_METERED_NETWORK_WARNING,
                                     meteredNetworkWarning.isChecked())
                             .putBoolean(Constants.PREF_AB_PERF_MODE, abPerfMode.isChecked())

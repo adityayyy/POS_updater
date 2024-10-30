@@ -23,7 +23,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
 import android.os.Binder;
 import android.os.Bundle;
@@ -33,12 +32,10 @@ import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.preference.PreferenceManager;
 
 import net.pixelos.ota.R;
 import net.pixelos.ota.UpdaterReceiver;
 import net.pixelos.ota.UpdatesActivity;
-import net.pixelos.ota.misc.Constants;
 import net.pixelos.ota.misc.StringGenerator;
 import net.pixelos.ota.misc.Utils;
 import net.pixelos.ota.model.Update;
@@ -400,13 +397,8 @@ public class UpdaterService extends Service {
                 mNotificationBuilder.setAutoCancel(true);
                 mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
 
-                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-                boolean deleteUpdate = pref.getBoolean(Constants.PREF_AUTO_DELETE_UPDATES, false);
-                boolean isLocal = Update.LOCAL_ID.equals(update.getDownloadId());
                 // Always delete local updates
-                if (deleteUpdate || isLocal) {
-                    mUpdaterController.deleteUpdate(update.getDownloadId());
-                }
+                mUpdaterController.deleteUpdate(update.getDownloadId());
 
                 tryStopSelf();
                 break;
