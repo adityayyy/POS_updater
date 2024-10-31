@@ -16,7 +16,6 @@
 package net.pixelos.ota;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -42,12 +41,9 @@ import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.RelativeLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
@@ -518,7 +514,7 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
     @SuppressLint("ClickableViewAccessibility")
     private void showPreferencesDialog() {
         View view = LayoutInflater.from(this).inflate(R.layout.preferences_dialog, null);
-        Spinner autoCheckInterval = view.findViewById(R.id.preferences_auto_updates_check_interval);
+        SwitchCompat autoCheck = view.findViewById(R.id.preferences_auto_updates_check);
         SwitchCompat abPerfMode = view.findViewById(R.id.preferences_ab_perf_mode);
         SwitchCompat updateRecovery = view.findViewById(R.id.preferences_update_recovery);
 
@@ -527,7 +523,7 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
         }
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        autoCheckInterval.setSelection(Utils.getUpdateCheckSetting(this));
+        autoCheck.setChecked(prefs.getBoolean(Constants.PREF_AUTO_UPDATES_CHECK, true));
         abPerfMode.setChecked(prefs.getBoolean(Constants.PREF_AB_PERF_MODE, false));
 
         if (getResources().getBoolean(R.bool.config_hideRecoveryUpdate)) {
@@ -563,8 +559,7 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
                 .setView(view)
                 .setOnDismissListener(dialogInterface -> {
                     prefs.edit()
-                            .putInt(Constants.PREF_AUTO_UPDATES_CHECK_INTERVAL,
-                                    autoCheckInterval.getSelectedItemPosition())
+                            .putBoolean(Constants.PREF_AUTO_UPDATES_CHECK, autoCheck.isChecked())
                             .putBoolean(Constants.PREF_AB_PERF_MODE, abPerfMode.isChecked())
                             .apply();
 

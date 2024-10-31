@@ -19,12 +19,8 @@ public final class Constants {
 
     public static final String AB_PAYLOAD_BIN_PATH = "payload.bin";
     public static final String AB_PAYLOAD_PROPERTIES_PATH = "payload_properties.txt";
-    public static final int AUTO_UPDATES_CHECK_INTERVAL_NEVER = 0;
-    public static final int AUTO_UPDATES_CHECK_INTERVAL_DAILY = 1;
-    public static final int AUTO_UPDATES_CHECK_INTERVAL_WEEKLY = 2;
-    public static final int AUTO_UPDATES_CHECK_INTERVAL_MONTHLY = 3;
     public static final String PREF_LAST_UPDATE_CHECK = "last_update_check";
-    public static final String PREF_AUTO_UPDATES_CHECK_INTERVAL = "auto_updates_check_interval";
+    public static final String PREF_AUTO_UPDATES_CHECK = "auto_updates_check";
     public static final String PREF_AB_PERF_MODE = "ab_perf_mode";
     public static final String PREF_NEEDS_REBOOT_ID = "needs_reboot_id";
     public static final String UNCRYPT_FILE_EXT = ".uncrypt";
