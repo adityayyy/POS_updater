@@ -16,8 +16,6 @@
 package net.pixelos.ota.misc;
 
 import android.app.AlarmManager;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -28,7 +26,6 @@ import android.net.NetworkCapabilities;
 import android.os.SystemProperties;
 import android.os.storage.StorageManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.preference.PreferenceManager;
 
@@ -343,15 +340,6 @@ public class Utils {
 
     public static boolean hasTouchscreen(Context context) {
         return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN);
-    }
-
-    public static void addToClipboard(Context context, String label, String text,
-                                      String toastMessage) {
-        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(
-                Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText(label, text);
-        clipboard.setPrimaryClip(clip);
-        Toast.makeText(context, toastMessage, Toast.LENGTH_SHORT).show();
     }
 
     public static boolean isEncrypted(Context context, File file) {

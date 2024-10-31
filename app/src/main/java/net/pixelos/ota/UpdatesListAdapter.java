@@ -497,19 +497,12 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
         }
         MenuBuilder menu = (MenuBuilder) popupMenu.getMenu();
         menu.findItem(R.id.menu_delete_action).setVisible(shouldShowDelete);
-        menu.findItem(R.id.menu_copy_url).setVisible(update.getAvailableOnline());
         menu.findItem(R.id.menu_export_update).setVisible(isVerified);
 
         popupMenu.setOnMenuItemClickListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.menu_delete_action) {
                 getDeleteDialog(update.getDownloadId()).show();
-                return true;
-            } else if (itemId == R.id.menu_copy_url) {
-                Utils.addToClipboard(mActivity,
-                        mActivity.getString(R.string.label_download_url),
-                        update.getDownloadUrl(),
-                        mActivity.getString(R.string.toast_download_url_copied));
                 return true;
             } else if (itemId == R.id.menu_export_update) {
                 if (mActivity != null) {
