@@ -237,11 +237,10 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
 
         String buildDate = StringGenerator.getDateLocalizedUTC(mActivity,
                 DateFormat.LONG, update.getTimestamp());
-        String buildVersion = mActivity.getString(R.string.list_build_version,
-                Utils.getDisplayVersion(update.getVersion()));
+        String buildName = Utils.getDisplayVersion(update.getName().replace(".zip", ""));
         viewHolder.mBuildDate.setText(buildDate);
-        viewHolder.mBuildVersion.setText(buildVersion);
-        viewHolder.mBuildVersion.setCompoundDrawables(null, null, null, null);
+        viewHolder.mBuildName.setText(buildName);
+        viewHolder.mBuildName.setCompoundDrawables(null, null, null, null);
 
         if (activeLayout) {
             handleActiveStatus(viewHolder, update);
@@ -570,8 +569,8 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
         private final Button mAction;
         private final ImageButton mMenu;
 
+        private final TextView mBuildName;
         private final TextView mBuildDate;
-        private final TextView mBuildVersion;
         private final TextView mBuildSize;
 
         private final LinearLayout mProgress;
@@ -584,8 +583,8 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
             mAction = view.findViewById(R.id.update_action);
             mMenu = view.findViewById(R.id.update_menu);
 
+            mBuildName = view.findViewById(R.id.build_name);
             mBuildDate = view.findViewById(R.id.build_date);
-            mBuildVersion = view.findViewById(R.id.build_version);
             mBuildSize = view.findViewById(R.id.build_size);
 
             mProgress = view.findViewById(R.id.progress);

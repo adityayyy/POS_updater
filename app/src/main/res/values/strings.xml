@@ -100,7 +100,6 @@
     <string name="header_android_version">Android <xliff:g example="7.1.2" id="version">%1$s</xliff:g></string>
     <string name="header_last_updates_check">Last checked: <xliff:g example="1 January 1970" id="date">%1$s</xliff:g> (<xliff:g example="01:23" id="time">%2$s</xliff:g>)</string>
 
-    <string name="list_build_version">PixelOS <xliff:g example="14.1" id="version">%1$s</xliff:g></string>
     <string name="list_build_version_date">PixelOS <xliff:g example="14.1" id="version">%1$s</xliff:g> - <xliff:g example="July 11, 2017" id="date">%2$s</xliff:g></string>
     <string name="list_download_progress_newer"><xliff:g example="12.2" id="filesize_without_unit">%1$s</xliff:g> of <xliff:g example="310 MB" id="filesize_without_unit">%2$s</xliff:g></string>
     <string name="list_download_progress_eta_newer"><xliff:g example="12.2" id="filesize_without_unit">%1$s</xliff:g> of <xliff:g example="310 MB" id="filesize_without_unit">%2$s</xliff:g> (<xliff:g example="3 minutes left" id="eta">%3$s</xliff:g>)</string>
