@@ -25,7 +25,6 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.icu.text.DateFormat;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -260,11 +259,6 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
             return true;
         } else if (itemId == R.id.menu_preferences) {
             showPreferencesDialog();
-            return true;
-        } else if (itemId == R.id.menu_show_changelog) {
-            Intent openUrl = new Intent(Intent.ACTION_VIEW,
-                    Uri.parse(Utils.getChangelogURL(this)));
-            startActivity(openUrl);
             return true;
         } else if (itemId == R.id.menu_local_update) {
             mUpdateImporter.openImportPicker();

@@ -130,12 +130,6 @@ public class Utils {
         return serverUrl.replace("{version}", buildVersion).replace("{device}", device);
     }
 
-    public static String getChangelogURL(Context context) {
-        String device = SystemProperties.get(Constants.PROP_DEVICE);
-        String buildVersion = SystemProperties.get(Constants.PROP_BUILD_VERSION);
-        return context.getString(R.string.menu_changelog_url, buildVersion, device);
-    }
-
     public static void triggerUpdate(Context context, String downloadId) {
         final Intent intent = new Intent(context, UpdaterService.class);
         intent.setAction(UpdaterService.ACTION_INSTALL_UPDATE);
