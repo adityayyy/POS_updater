@@ -66,7 +66,6 @@
 
     <string name="reboot">Reboot</string>
 
-    <string name="menu_refresh">Refresh</string>
     <string name="menu_preferences">Preferences</string>
     <string name="menu_auto_updates_check">Auto updates check</string>
     <string name="menu_ab_perf_mode">Prioritize update process</string>

@@ -84,9 +84,6 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
 
     private UpdatesListAdapter mAdapter;
 
-    private View mRefreshIconView;
-    private RotateAnimation mRefreshAnimation;
-
     private final ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className,
@@ -203,11 +200,6 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
                 }
             }
         });
-
-        mRefreshAnimation = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f,
-                Animation.RELATIVE_TO_SELF, 0.5f);
-        mRefreshAnimation.setInterpolator(new LinearInterpolator());
-        mRefreshAnimation.setDuration(1000);
     }
 
     @Override
@@ -254,10 +246,7 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
-        if (itemId == R.id.menu_refresh) {
-            downloadUpdatesList(true);
-            return true;
-        } else if (itemId == R.id.menu_preferences) {
+        if (itemId == R.id.menu_preferences) {
             showPreferencesDialog();
             return true;
         } else if (itemId == R.id.menu_local_update) {
@@ -412,7 +401,6 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
                     if (!cancelled) {
                         showSnackbar(R.string.snack_updates_check_failed, Snackbar.LENGTH_LONG);
                     }
-                    refreshAnimationStop();
                 });
             }
 
@@ -425,7 +413,6 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
                 runOnUiThread(() -> {
                     Log.d(TAG, "List downloaded");
                     processNewJson(jsonFile, jsonFileTmp, manualRefresh);
-                    refreshAnimationStop();
                 });
             }
         };
@@ -443,7 +430,6 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
             return;
         }
 
-        refreshAnimationStart();
         downloadClient.start();
     }
 
@@ -480,24 +466,6 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
     @Override
     public void showSnackbar(int stringId, int duration) {
         Snackbar.make(findViewById(R.id.main_container), stringId, duration).show();
-    }
-
-    private void refreshAnimationStart() {
-        if (mRefreshIconView == null) {
-            mRefreshIconView = findViewById(R.id.menu_refresh);
-        }
-        if (mRefreshIconView != null) {
-            mRefreshAnimation.setRepeatCount(Animation.INFINITE);
-            mRefreshIconView.startAnimation(mRefreshAnimation);
-            mRefreshIconView.setEnabled(false);
-        }
-    }
-
-    private void refreshAnimationStop() {
-        if (mRefreshIconView != null) {
-            mRefreshAnimation.setRepeatCount(0);
-            mRefreshIconView.setEnabled(true);
-        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
