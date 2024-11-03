@@ -1,5 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
      Copyright (C) 2017-2024 The LineageOS Project
+     Copyright (C) 2024 PixelOS
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -25,7 +27,7 @@
     Optional placeholders replaced at runtime:
       {version} - Build version
       {device} - Device name
--->
+    -->
     <string name="updater_server_url" translatable="false">https://raw.githubusercontent.com/PixelOS-AOSP/official_devices/{version}/API/updater/{device}.json</string>
 
     <string name="verification_failed_notification">Verification failed</string>
@@ -64,44 +66,39 @@
     </string>
     <string name="dialog_scratch_mounted_title">Cannot install update with OverlayFS mounted</string>
 
-    <string name="reboot">Reboot</string>
-
     <string name="menu_preferences">Preferences</string>
-    <string name="menu_auto_updates_check">Auto updates check</string>
-    <string name="menu_ab_perf_mode">Prioritize update process</string>
+    <string name="menu_auto_updates_check">Automatic check for updates</string>
+    <string name="menu_ab_perf_mode">A/B performance mode</string>
     <string name="menu_update_recovery">Update recovery</string>
-    <string name="toast_forced_update_recovery">It is impossible to disable Lineage Recovery updates on this device.</string>
 
-    <string name="snack_updates_found">New updates found</string>
-    <string name="snack_no_updates_found">No new updates found</string>
+    <string name="auto_updates_check_summary">Enable to check for updates automatically once every 14 days.</string>
+    <string name="ab_perf_mode_summary">Increase priority of the update process. Might influence normal usage when an update is in progress.</string>
+    <string name="update_recovery_summary">Enable to update recovery from the build automatically.</string>
+
     <string name="snack_updates_check_failed">The update check failed. Please check your internet connection and try again later.</string>
-
     <string name="snack_download_failed">The download failed. Please check your internet connection and try again later.</string>
     <string name="snack_download_verification_failed">The update verification failed.</string>
     <string name="snack_download_verified">Download completed.</string>
-
     <string name="snack_update_not_installable">This update can\'t be installed on top of the current build.</string>
 
-    <string name="header_title_text">PixelOS\n%1$s</string>
-    <string name="header_android_version">Android <xliff:g example="7.1.2" id="version">%1$s</xliff:g></string>
-    <string name="header_last_updates_check">Last checked: <xliff:g example="1 January 1970" id="date">%1$s</xliff:g> (<xliff:g example="01:23" id="time">%2$s</xliff:g>)</string>
+    <string name="header_android_version">Android version: <xliff:g example="7.1.2" id="version">%1$s</xliff:g></string>
+    <string name="header_android_security_patch">Android security update: <xliff:g example="1" id="patch">%1$s</xliff:g></string>
+    <string name="header_last_updates_check">Last successful check for update:\n<xliff:g example="1 January 1970" id="date">%1$s</xliff:g> (<xliff:g example="01:23" id="time">%2$s</xliff:g>)</string>
 
-    <string name="list_build_version_date">PixelOS <xliff:g example="14.1" id="version">%1$s</xliff:g> - <xliff:g example="July 11, 2017" id="date">%2$s</xliff:g></string>
+    <string name="list_build_version_date">PixelOS <xliff:g example="15" id="version">%1$s</xliff:g> - <xliff:g example="July 11, 2017" id="date">%2$s</xliff:g></string>
     <string name="list_download_progress_newer"><xliff:g example="12.2" id="filesize_without_unit">%1$s</xliff:g> of <xliff:g example="310 MB" id="filesize_without_unit">%2$s</xliff:g></string>
-    <string name="list_download_progress_eta_newer"><xliff:g example="12.2" id="filesize_without_unit">%1$s</xliff:g> of <xliff:g example="310 MB" id="filesize_without_unit">%2$s</xliff:g> (<xliff:g example="3 minutes left" id="eta">%3$s</xliff:g>)</string>
     <string name="list_verifying_update">Verifying update</string>
-    <string name="list_no_updates">No new updates found. To manually check for new updates, use the Refresh button.</string>
 
     <string name="action_download">Download</string>
     <string name="action_pause">Pause</string>
     <string name="action_resume">Resume</string>
+    <string name="action_reboot">Reboot</string>
     <string name="action_install">Install</string>
-    <string name="action_info">Info</string>
-    <string name="action_delete">Delete</string>
+    <string name="action_delete">Cancel</string>
     <string name="action_cancel">Cancel</string>
 
     <string name="confirm_delete_dialog_title">Delete file</string>
-    <string name="confirm_delete_dialog_message">Delete the selected update file?</string>
+    <string name="confirm_delete_dialog_message">Delete the current downloading file?</string>
 
     <string name="apply_update_dialog_title">Apply update</string>
     <string name="apply_update_dialog_message">You are about to install <xliff:g id="update_name">%1$s</xliff:g>.\n\nIf you press <xliff:g id="ok">%2$s</xliff:g>, the device will restart itself in recovery mode to install the update.\n\nNote: This feature requires a compatible Recovery or updates will need to be installed manually.</string>
@@ -109,14 +106,7 @@
 
     <string name="cancel_installation_dialog_message">Cancel the installation?</string>
 
-    <string name="label_download_url">Download URL</string>
-    <string name="toast_download_url_copied">URL Copied</string>
-
-    <string name="dialog_export_title">Exporting update</string>
-    <string name="notification_export_success">Update exported</string>
-    <string name="notification_export_fail">Export error</string>
-    <string name="toast_already_exporting">Already exporting an update</string>
-    <string name="toast_export_started">Export started</string>
+    <string name="reboot_installation_dialog_message">Reboot to complete installation</string>
 
     <plurals name="eta_seconds">
         <item quantity="one">1 second left</item>
@@ -131,25 +121,33 @@
         <item quantity="other"><xliff:g id="count">%d</xliff:g> hours left</item>
     </plurals>
 
-    <string name="update_over_metered_network_title">Warning</string>
-    <string name="update_over_metered_network_message">You\'re about to download an update package over a metered network which is likely going to cause high data usage. Would you like to proceed?</string>
+    <string name="update_over_metered_network_info">Metered connection warning</string>
+    <string name="update_over_metered_network_message">Downloading updates, over a cellular network, metered Wi-Fi, or while roaming may cause additional charges.</string>
 
-    <string name="blocked_update_dialog_title">Update blocked</string>
-    <string name="blocked_update_dialog_message">This update cannot be installed using the updater app.</string>
-
-    <string name="export_channel_title">Export completion</string>
     <string name="new_updates_channel_title">New updates</string>
     <string name="ongoing_channel_title">Ongoing downloads</string>
     <string name="update_failed_channel_title">Update failed</string>
-
-    <string name="info_dialog_title">Did you know?</string>
-    <string name="info_dialog_message">PixelOS updates are full installation packages. That means you can always install only the latest update, even if you skipped some in between!</string>
-    <string name="info_dialog_ok">Thanks for the info!</string>
 
     <string name="local_update_import">Local update</string>
     <string name="local_update_import_progress">Importing local update\u2026</string>
     <string name="local_update_import_success">%1$s has been imported. Do you want to install it?</string>
     <string name="local_update_import_failure">Failed to import local update</string>
     <string name="local_update_import_install">Install</string>
-    <string name="local_update_name">Local update</string>
+
+    <string name="check_for_update">Check for update</string>
+    <string name="check_for_update_failed">Failed to check for update</string>
+    <string name="system_up_to_date">Your system is up to date</string>
+    <string name="system_update_available">System update available</string>
+
+    <string name="checking_for_update">Checking for system update\u2026</string>
+    <string name="system_update_downloading">Downloading system update</string>
+    <string name="system_update_downloading_paused">Download paused</string>
+    <string name="system_update_installing">Installing system update</string>
+    <string name="system_update_verifying">Verifying system update</string>
+    <string name="local_update_installing">Installing local update</string>
+
+    <string name="changelog_url" translatable="false">https://raw.githubusercontent.com/PixelOS-AOSP/official_devices/{version}/API/latest_changelogs/{device}.md</string>
+
+    <string name="general_header">General</string>
+
 </resources>

@@ -33,10 +33,9 @@ public final class Constants {
     public static final String PREF_INSTALL_PACKAGE_PATH = "install_package_path";
     public static final String PREF_INSTALL_AGAIN = "install_again";
     public static final String PREF_INSTALL_NOTIFIED = "install_notified";
+    public static final String PREF_UPDATE_RECOVERY = "update_recovery";
     public static final String UPDATE_RECOVERY_EXEC = "/vendor/bin/install-recovery.sh";
     public static final String UPDATE_RECOVERY_PROPERTY = "persist.vendor.recovery_update";
-    public static final String HAS_SEEN_INFO_DIALOG = "has_seen_info_dialog";
 
-    private Constants() {
-    }
+    private Constants() {}
 }

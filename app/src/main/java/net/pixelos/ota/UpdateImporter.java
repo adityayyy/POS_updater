@@ -67,9 +67,10 @@ public class UpdateImporter {
     }
 
     public void openImportPicker() {
-        final Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT)
-                .addCategory(Intent.CATEGORY_OPENABLE)
-                .setType(MIME_ZIP);
+        final Intent intent =
+                new Intent(Intent.ACTION_OPEN_DOCUMENT)
+                        .addCategory(Intent.CATEGORY_OPENABLE)
+                        .setType(MIME_ZIP);
         activity.startActivityForResult(intent, REQUEST_PICK);
     }
 
@@ -85,25 +86,27 @@ public class UpdateImporter {
     private boolean onPicked(Uri uri) {
         callbacks.onImportStarted();
 
-        workingThread = new Thread(() -> {
-            File importedFile = null;
-            try {
-                importedFile = importFile(uri);
-                verifyPackage(importedFile);
+        workingThread =
+                new Thread(
+                        () -> {
+                            File importedFile = null;
+                            try {
+                                importedFile = importFile(uri);
+                                verifyPackage(importedFile);
 
-                final Update update = buildLocalUpdate(importedFile);
-                addUpdate(update);
-                activity.runOnUiThread(() -> callbacks.onImportCompleted(update));
-            } catch (Exception e) {
-                Log.e(TAG, "Failed to import update package", e);
-                // Do not store invalid update
-                if (importedFile != null) {
-                    importedFile.delete();
-                }
+                                final Update update = buildLocalUpdate(importedFile);
+                                addUpdate(update);
+                                activity.runOnUiThread(() -> callbacks.onImportCompleted(update));
+                            } catch (Exception e) {
+                                Log.e(TAG, "Failed to import update package", e);
+                                // Do not store invalid update
+                                if (importedFile != null) {
+                                    importedFile.delete();
+                                }
 
-                activity.runOnUiThread(() -> callbacks.onImportCompleted(null));
-            }
-        });
+                                activity.runOnUiThread(() -> callbacks.onImportCompleted(null));
+                            }
+                        });
         workingThread.start();
         return true;
     }
@@ -111,14 +114,13 @@ public class UpdateImporter {
     @SuppressLint("SetWorldReadable")
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private File importFile(Uri uri) throws IOException {
-        final ParcelFileDescriptor parcelDescriptor = activity.getContentResolver()
-                .openFileDescriptor(uri, "r");
+        final ParcelFileDescriptor parcelDescriptor =
+                activity.getContentResolver().openFileDescriptor(uri, "r");
         if (parcelDescriptor == null) {
             throw new IOException("Failed to obtain fileDescriptor");
         }
 
-        final FileInputStream iStream = new FileInputStream(parcelDescriptor
-                .getFileDescriptor());
+        final FileInputStream iStream = new FileInputStream(parcelDescriptor.getFileDescriptor());
         final File downloadDir = Utils.getDownloadPath(activity);
         final File outFile = new File(downloadDir, FILE_NAME);
         if (outFile.exists()) {
@@ -143,9 +145,9 @@ public class UpdateImporter {
 
     private Update buildLocalUpdate(File file) {
         final long timeStamp = getTimeStamp(file);
-        final String buildDate = StringGenerator.getDateLocalizedUTC(
-                activity, DateFormat.MEDIUM, timeStamp);
-        final String name = activity.getString(R.string.local_update_name);
+        final String buildDate =
+                StringGenerator.getDateLocalizedUTC(activity, DateFormat.MEDIUM, timeStamp);
+        final String name = activity.getString(R.string.local_update_import);
         final Update update = new Update();
         update.setAvailableOnline(false);
         update.setName(name);
@@ -180,7 +182,7 @@ public class UpdateImporter {
 
     private long getTimeStamp(File file) {
         try {
-            final String metadataContent = readZippedFile(file, METADATA_PATH);
+            final String metadataContent = readZippedFile(file);
             final String[] lines = metadataContent.split("\n");
             for (String line : lines) {
                 if (!line.startsWith(METADATA_TIMESTAMP_KEY)) {
@@ -200,7 +202,7 @@ public class UpdateImporter {
         return System.currentTimeMillis();
     }
 
-    private String readZippedFile(File file, String path) throws IOException {
+    private String readZippedFile(File file) throws IOException {
         final StringBuilder sb = new StringBuilder();
         InputStream iStream = null;
 
@@ -217,7 +219,8 @@ public class UpdateImporter {
             }
 
             if (iStream == null) {
-                throw new FileNotFoundException("Couldn't find " + path + " in " + file.getName());
+                throw new FileNotFoundException(
+                        "Couldn't find " + UpdateImporter.METADATA_PATH + " in " + file.getName());
             }
 
             final byte[] buffer = new byte[1024];

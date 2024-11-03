@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2017-2022 The LineageOS Project
+ * Copyright (C) 2024 PixelOS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +28,7 @@ import java.util.TimeZone;
 
 public final class StringGenerator {
 
-    private StringGenerator() {
-    }
+    private StringGenerator() {}
 
     public static String getTimeLocalized(Context context, long unixTimestamp) {
         DateFormat f = DateFormat.getTimeInstance(DateFormat.SHORT, getCurrentLocale(context));
@@ -67,7 +67,9 @@ public final class StringGenerator {
     }
 
     public static Locale getCurrentLocale(Context context) {
-        return context.getResources().getConfiguration().getLocales()
+        return context.getResources()
+                .getConfiguration()
+                .getLocales()
                 .getFirstMatch(context.getResources().getAssets().getLocales());
     }
 }

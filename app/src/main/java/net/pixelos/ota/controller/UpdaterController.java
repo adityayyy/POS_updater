@@ -18,14 +18,12 @@ package net.pixelos.ota.controller;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.PowerManager;
 import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import net.pixelos.ota.UpdatesDbHelper;
 import net.pixelos.ota.download.DownloadClient;
 import net.pixelos.ota.misc.Utils;
 import net.pixelos.ota.model.Update;
@@ -53,7 +51,6 @@ public class UpdaterController {
     private final String TAG = "UpdaterController";
     private final Context mContext;
     private final LocalBroadcastManager mBroadcastManager;
-    private final UpdatesDbHelper mUpdatesDbHelper;
 
     private final PowerManager.WakeLock mWakeLock;
 
@@ -64,18 +61,12 @@ public class UpdaterController {
 
     private UpdaterController(Context context) {
         mBroadcastManager = LocalBroadcastManager.getInstance(context);
-        mUpdatesDbHelper = new UpdatesDbHelper(context);
         mDownloadRoot = Utils.getDownloadPath(context);
         PowerManager powerManager = context.getSystemService(PowerManager.class);
         mWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Updater:wakelock");
         mWakeLock.setReferenceCounted(false);
         mContext = context.getApplicationContext();
-
         Utils.cleanupDownloadsDir(context);
-
-        for (Update update : mUpdatesDbHelper.getUpdates()) {
-            addUpdate(update, false);
-        }
     }
 
     public static synchronized UpdaterController getInstance(Context context) {
@@ -86,17 +77,19 @@ public class UpdaterController {
     }
 
     void notifyUpdateChange(String downloadId) {
-        new Thread(() -> {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            Intent intent = new Intent();
-            intent.setAction(ACTION_UPDATE_STATUS);
-            intent.putExtra(EXTRA_DOWNLOAD_ID, downloadId);
-            mBroadcastManager.sendBroadcast(intent);
-        }).start();
+        new Thread(
+                        () -> {
+                            try {
+                                Thread.sleep(500);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            Intent intent = new Intent();
+                            intent.setAction(ACTION_UPDATE_STATUS);
+                            intent.putExtra(EXTRA_DOWNLOAD_ID, downloadId);
+                            mBroadcastManager.sendBroadcast(intent);
+                        })
+                .start();
     }
 
     void notifyUpdateDelete(String downloadId) {
@@ -165,8 +158,6 @@ public class UpdaterController {
                 }
                 update.setStatus(UpdateStatus.DOWNLOADING);
                 update.setPersistentStatus(UpdateStatus.Persistent.INCOMPLETE);
-                new Thread(() -> mUpdatesDbHelper.addUpdateWithOnConflict(update,
-                        SQLiteDatabase.CONFLICT_REPLACE)).start();
                 notifyUpdateChange(downloadId);
             }
 
@@ -243,27 +234,27 @@ public class UpdaterController {
     @SuppressLint("SetWorldReadable")
     private void verifyUpdateAsync(final String downloadId) {
         mVerifyingUpdates.add(downloadId);
-        new Thread(() -> {
-            DownloadEntry entry = mDownloads.get(downloadId);
-            if (entry != null) {
-                Update update = entry.mUpdate;
-                File file = update.getFile();
-                if (file.exists() && verifyPackage(file)) {
-                    //noinspection ResultOfMethodCallIgnored
-                    file.setReadable(true, false);
-                    update.setPersistentStatus(UpdateStatus.Persistent.VERIFIED);
-                    mUpdatesDbHelper.changeUpdateStatus(update);
-                    update.setStatus(UpdateStatus.VERIFIED);
-                } else {
-                    update.setPersistentStatus(UpdateStatus.Persistent.UNKNOWN);
-                    mUpdatesDbHelper.removeUpdate(downloadId);
-                    update.setProgress(0);
-                    update.setStatus(UpdateStatus.VERIFICATION_FAILED);
-                }
-                mVerifyingUpdates.remove(downloadId);
-                notifyUpdateChange(downloadId);
-            }
-        }).start();
+        new Thread(
+                        () -> {
+                            DownloadEntry entry = mDownloads.get(downloadId);
+                            if (entry != null) {
+                                Update update = entry.mUpdate;
+                                File file = update.getFile();
+                                if (file.exists() && verifyPackage(file)) {
+                                    //noinspection ResultOfMethodCallIgnored
+                                    file.setReadable(true, false);
+                                    update.setPersistentStatus(UpdateStatus.Persistent.VERIFIED);
+                                    update.setStatus(UpdateStatus.VERIFIED);
+                                } else {
+                                    update.setPersistentStatus(UpdateStatus.Persistent.UNKNOWN);
+                                    update.setProgress(0);
+                                    update.setStatus(UpdateStatus.VERIFICATION_FAILED);
+                                }
+                                mVerifyingUpdates.remove(downloadId);
+                                notifyUpdateChange(downloadId);
+                            }
+                        })
+                .start();
     }
 
     private boolean verifyPackage(File file) {
@@ -293,8 +284,8 @@ public class UpdaterController {
                     return false;
                 } else if (update.getFileSize() > 0) {
                     update.setStatus(UpdateStatus.PAUSED);
-                    int progress = Math.round(
-                            update.getFile().length() * 100f / update.getFileSize());
+                    int progress =
+                            Math.round(update.getFile().length() * 100f / update.getFileSize());
                     update.setProgress(progress);
                 }
                 break;
@@ -307,8 +298,9 @@ public class UpdaterController {
         for (DownloadEntry entry : mDownloads.values()) {
             boolean online = downloadIds.contains(entry.mUpdate.getDownloadId());
             entry.mUpdate.setAvailableOnline(online);
-            if (!online && purgeList &&
-                    entry.mUpdate.getPersistentStatus() == UpdateStatus.Persistent.UNKNOWN) {
+            if (!online
+                    && purgeList
+                    && entry.mUpdate.getPersistentStatus() == UpdateStatus.Persistent.UNKNOWN) {
                 toRemove.add(entry.mUpdate.getDownloadId());
             }
         }
@@ -367,13 +359,14 @@ public class UpdaterController {
         update.setFile(destination);
         DownloadClient downloadClient;
         try {
-            downloadClient = new DownloadClient.Builder()
-                    .setUrl(update.getDownloadUrl())
-                    .setDestination(update.getFile())
-                    .setDownloadCallback(getDownloadCallback(downloadId))
-                    .setProgressListener(getProgressListener(downloadId))
-                    .setUseDuplicateLinks(true)
-                    .build();
+            downloadClient =
+                    new DownloadClient.Builder()
+                            .setUrl(update.getDownloadUrl())
+                            .setDestination(update.getFile())
+                            .setDownloadCallback(getDownloadCallback(downloadId))
+                            .setProgressListener(getProgressListener(downloadId))
+                            .setUseDuplicateLinks(true)
+                            .build();
         } catch (IOException exception) {
             Log.e(TAG, "Could not build download client");
             update.setStatus(UpdateStatus.PAUSED_ERROR);
@@ -414,13 +407,14 @@ public class UpdaterController {
         } else {
             DownloadClient downloadClient;
             try {
-                downloadClient = new DownloadClient.Builder()
-                        .setUrl(update.getDownloadUrl())
-                        .setDestination(update.getFile())
-                        .setDownloadCallback(getDownloadCallback(downloadId))
-                        .setProgressListener(getProgressListener(downloadId))
-                        .setUseDuplicateLinks(true)
-                        .build();
+                downloadClient =
+                        new DownloadClient.Builder()
+                                .setUrl(update.getDownloadUrl())
+                                .setDestination(update.getFile())
+                                .setDownloadCallback(getDownloadCallback(downloadId))
+                                .setProgressListener(getProgressListener(downloadId))
+                                .setUseDuplicateLinks(true)
+                                .build();
             } catch (IOException exception) {
                 Log.e(TAG, "Could not build download client");
                 update.setStatus(UpdateStatus.PAUSED_ERROR);
@@ -453,13 +447,14 @@ public class UpdaterController {
     }
 
     private void deleteUpdateAsync(final Update update) {
-        new Thread(() -> {
-            File file = update.getFile();
-            if (file.exists() && !file.delete()) {
-                Log.e(TAG, "Could not delete " + file.getAbsolutePath());
-            }
-            mUpdatesDbHelper.removeUpdate(update.getDownloadId());
-        }).start();
+        new Thread(
+                        () -> {
+                            File file = update.getFile();
+                            if (file.exists() && !file.delete()) {
+                                Log.e(TAG, "Could not delete " + file.getAbsolutePath());
+                            }
+                        })
+                .start();
     }
 
     public void deleteUpdate(String downloadId) {
@@ -506,8 +501,8 @@ public class UpdaterController {
 
     public boolean isDownloading(String downloadId) {
         //noinspection ConstantConditions
-        return mDownloads.containsKey(downloadId) &&
-                mDownloads.get(downloadId).mDownloadClient != null;
+        return mDownloads.containsKey(downloadId)
+                && mDownloads.get(downloadId).mDownloadClient != null;
     }
 
     public boolean hasActiveDownloads() {
@@ -523,13 +518,12 @@ public class UpdaterController {
     }
 
     public boolean isInstallingUpdate() {
-        return UpdateInstaller.isInstalling() ||
-                ABUpdateInstaller.isInstallingUpdate(mContext);
+        return UpdateInstaller.isInstalling() || ABUpdateInstaller.isInstallingUpdate(mContext);
     }
 
     public boolean isInstallingUpdate(String downloadId) {
-        return UpdateInstaller.isInstalling(downloadId) ||
-                ABUpdateInstaller.isInstallingUpdate(mContext, downloadId);
+        return UpdateInstaller.isInstalling(downloadId)
+                || ABUpdateInstaller.isInstallingUpdate(mContext, downloadId);
     }
 
     public boolean isInstallingABUpdate() {

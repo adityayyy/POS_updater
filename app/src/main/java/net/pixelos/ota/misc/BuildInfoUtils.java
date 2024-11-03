@@ -19,12 +19,7 @@ import android.os.SystemProperties;
 
 public final class BuildInfoUtils {
 
-    private BuildInfoUtils() {
-    }
-
-    public static long getBuildDateTimestamp() {
-        return SystemProperties.getLong(Constants.PROP_BUILD_DATE, 0);
-    }
+    private BuildInfoUtils() {}
 
     public static String getBuildVersion() {
         return SystemProperties.get(Constants.PROP_BUILD_VERSION);

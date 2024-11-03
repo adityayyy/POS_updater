@@ -20,22 +20,17 @@ import java.io.IOException;
 
 public interface DownloadClient {
 
-    /**
-     * Start the download. This method has no effect if the download already started.
-     */
+    /** Start the download. This method has no effect if the download already started. */
     void start();
 
     /**
-     * Resume the download. The download will fail if the server can't fulfil the
-     * partial content request and DownloadCallback.onFailure() will be called.
-     * This method has no effect if the download already started or the destination
-     * file doesn't exist.
+     * Resume the download. The download will fail if the server can't fulfil the partial content
+     * request and DownloadCallback.onFailure() will be called. This method has no effect if the
+     * download already started or the destination file doesn't exist.
      */
     void resume();
 
-    /**
-     * Cancel the download. This method has no effect if the download isn't ongoing.
-     */
+    /** Cancel the download. This method has no effect if the download isn't ongoing. */
     void cancel();
 
     interface DownloadCallback {
@@ -69,8 +64,8 @@ public interface DownloadClient {
             } else if (mCallback == null) {
                 throw new IllegalStateException("No download callback defined");
             }
-            return new HttpURLConnectionClient(mUrl, mDestination, mProgressListener, mCallback,
-                    mUseDuplicateLinks);
+            return new HttpURLConnectionClient(
+                    mUrl, mDestination, mProgressListener, mCallback, mUseDuplicateLinks);
         }
 
         public Builder setUrl(String url) {

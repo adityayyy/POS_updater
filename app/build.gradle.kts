@@ -14,11 +14,11 @@ apply {
 
 buildscript {
     repositories {
-        maven("https://raw.githubusercontent.com/lineage-next/gradle-generatebp/v1.2/.m2")
+        maven("https://raw.githubusercontent.com/lineage-next/gradle-generatebp/v1.16/.m2")
     }
 
     dependencies {
-        classpath("org.lineageos:gradle-generatebp:1.2")
+        classpath("org.lineageos:gradle-generatebp:1.16")
     }
 }
 
@@ -35,7 +35,7 @@ android {
 
     defaultConfig {
         applicationId = "net.pixelos.ota"
-        minSdk = 30
+        minSdk = 34
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -89,12 +89,11 @@ dependencies {
 
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.appcompat:appcompat:1.7.0")
-    implementation("androidx.cardview:cardview:1.0.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
     implementation("androidx.localbroadcastmanager:localbroadcastmanager:1.1.0")
-    implementation("androidx.preference:preference-ktx:1.2.1")
-    implementation("androidx.recyclerview:recyclerview:1.3.2")
+    implementation("androidx.preference:preference:1.2.1")
     implementation("com.google.android.material:material:1.12.0")
+    implementation("io.noties.markwon:core:4.6.2")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 }
 
 configure<GenerateBpPluginExtension> {

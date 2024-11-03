@@ -36,8 +36,7 @@ import java.text.DateFormat;
 
 public class UpdaterReceiver extends BroadcastReceiver {
 
-    public static final String ACTION_INSTALL_REBOOT =
-            "net.pixelos.ota.action.INSTALL_REBOOT";
+    public static final String ACTION_INSTALL_REBOOT = "net.pixelos.ota.action.INSTALL_REBOOT";
 
     private static final String INSTALL_ERROR_NOTIFICATION_CHANNEL =
             "install_error_notification_channel";
@@ -46,8 +45,8 @@ public class UpdaterReceiver extends BroadcastReceiver {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
         // We can't easily detect failed re-installations
-        if (preferences.getBoolean(Constants.PREF_INSTALL_AGAIN, false) ||
-                preferences.getBoolean(Constants.PREF_INSTALL_NOTIFIED, false)) {
+        if (preferences.getBoolean(Constants.PREF_INSTALL_AGAIN, false)
+                || preferences.getBoolean(Constants.PREF_INSTALL_NOTIFIED, false)) {
             return false;
         }
 
@@ -58,26 +57,37 @@ public class UpdaterReceiver extends BroadcastReceiver {
 
     private static void showUpdateFailedNotification(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String buildDate = StringGenerator.getDateLocalizedUTC(context,
-                DateFormat.MEDIUM, preferences.getLong(Constants.PREF_INSTALL_NEW_TIMESTAMP, 0));
-        String buildInfo = context.getString(R.string.list_build_version_date,
-                BuildInfoUtils.getBuildVersion(), buildDate);
+        String buildDate =
+                StringGenerator.getDateLocalizedUTC(
+                        context,
+                        DateFormat.MEDIUM,
+                        preferences.getLong(Constants.PREF_INSTALL_NEW_TIMESTAMP, 0));
+        String buildInfo =
+                context.getString(
+                        R.string.list_build_version_date,
+                        BuildInfoUtils.getBuildVersion(),
+                        buildDate);
 
         Intent notificationIntent = new Intent(context, UpdatesActivity.class);
-        PendingIntent intent = PendingIntent.getActivity(context, 0, notificationIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent intent =
+                PendingIntent.getActivity(
+                        context,
+                        0,
+                        notificationIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        NotificationChannel notificationChannel = new NotificationChannel(
-                INSTALL_ERROR_NOTIFICATION_CHANNEL,
-                context.getString(R.string.update_failed_channel_title),
-                NotificationManager.IMPORTANCE_LOW);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context,
-                INSTALL_ERROR_NOTIFICATION_CHANNEL)
-                .setContentIntent(intent)
-                .setSmallIcon(R.drawable.ic_system_update)
-                .setContentTitle(context.getString(R.string.update_failed_notification))
-                .setStyle(new NotificationCompat.BigTextStyle().bigText(buildInfo))
-                .setContentText(buildInfo);
+        NotificationChannel notificationChannel =
+                new NotificationChannel(
+                        INSTALL_ERROR_NOTIFICATION_CHANNEL,
+                        context.getString(R.string.update_failed_channel_title),
+                        NotificationManager.IMPORTANCE_LOW);
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(context, INSTALL_ERROR_NOTIFICATION_CHANNEL)
+                        .setContentIntent(intent)
+                        .setSmallIcon(R.drawable.ic_system_update)
+                        .setContentTitle(context.getString(R.string.update_failed_notification))
+                        .setStyle(new NotificationCompat.BigTextStyle().bigText(buildInfo))
+                        .setContentText(buildInfo);
 
         NotificationManager nm = context.getSystemService(NotificationManager.class);
         nm.createNotificationChannel(notificationChannel);

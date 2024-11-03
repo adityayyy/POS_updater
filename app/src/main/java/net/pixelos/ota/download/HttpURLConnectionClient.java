@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 
 public class HttpURLConnectionClient implements DownloadClient {
 
-    private final static String TAG = "HttpURLConnectionClient";
+    private static final String TAG = "HttpURLConnectionClient";
     private final File mDestination;
     private final DownloadClient.ProgressListener mProgressListener;
     private final DownloadClient.DownloadCallback mCallback;
@@ -42,10 +42,13 @@ public class HttpURLConnectionClient implements DownloadClient {
     private HttpURLConnection mClient;
     private DownloadThread mDownloadThread;
 
-    HttpURLConnectionClient(String url, File destination,
-                            DownloadClient.ProgressListener progressListener,
-                            DownloadClient.DownloadCallback callback,
-                            boolean useDuplicateLinks) throws IOException {
+    HttpURLConnectionClient(
+            String url,
+            File destination,
+            DownloadClient.ProgressListener progressListener,
+            DownloadClient.DownloadCallback callback,
+            boolean useDuplicateLinks)
+            throws IOException {
         mClient = (HttpURLConnection) new URL(url).openConnection();
         mDestination = destination;
         mProgressListener = progressListener;
@@ -118,7 +121,6 @@ public class HttpURLConnectionClient implements DownloadClient {
         public String get(String name) {
             return mClient.getHeaderField(name);
         }
-
     }
 
     private class DownloadThread extends Thread {
@@ -195,8 +197,10 @@ public class HttpURLConnectionClient implements DownloadClient {
 
             for (Map.Entry<String, List<String>> entry : mClient.getHeaderFields().entrySet()) {
                 if ("Link".equalsIgnoreCase((entry.getKey()))) {
-                    duplicates = new PriorityQueue<>(entry.getValue().size(),
-                            Comparator.comparingInt(d -> d.mPriority));
+                    duplicates =
+                            new PriorityQueue<>(
+                                    entry.getValue().size(),
+                                    Comparator.comparingInt(d -> d.mPriority));
 
                     // https://tools.ietf.org/html/rfc6249
                     // https://tools.ietf.org/html/rfc5988#section-5
@@ -274,10 +278,8 @@ public class HttpURLConnectionClient implements DownloadClient {
                     return;
                 }
 
-                try (
-                        InputStream inputStream = mClient.getInputStream();
-                        OutputStream outputStream = new FileOutputStream(mDestination, mResume)
-                ) {
+                try (InputStream inputStream = mClient.getInputStream();
+                        OutputStream outputStream = new FileOutputStream(mDestination, mResume)) {
                     mTotalBytes = mClient.getContentLengthLong() + mTotalBytesRead;
                     byte[] b = new byte[8192];
                     int count;

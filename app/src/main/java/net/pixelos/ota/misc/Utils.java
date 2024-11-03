@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2017-2023 The LineageOS Project
+ * Copyright (C) 2024 PixelOS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,14 +22,15 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
+import android.os.Build;
 import android.os.SystemProperties;
 import android.os.storage.StorageManager;
+import android.text.format.DateFormat;
 import android.util.Log;
 
 import androidx.preference.PreferenceManager;
 
 import net.pixelos.ota.R;
-import net.pixelos.ota.UpdatesDbHelper;
 import net.pixelos.ota.controller.UpdaterService;
 import net.pixelos.ota.model.Update;
 import net.pixelos.ota.model.UpdateBaseInfo;
@@ -42,10 +44,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -54,8 +60,7 @@ public class Utils {
 
     private static final String TAG = "Utils";
 
-    private Utils() {
-    }
+    private Utils() {}
 
     public static File getDownloadPath(Context context) {
         return new File(context.getString(R.string.download_path));
@@ -79,6 +84,18 @@ public class Utils {
     }
 
     public static boolean isCompatible(UpdateBaseInfo update) {
+        if (update.getVersion()
+                        .compareTo(SystemProperties.get(String.valueOf(Build.VERSION.RELEASE)))
+                < 0) {
+            Log.d(
+                    TAG,
+                    update.getName()
+                            + " with version "
+                            + update.getVersion()
+                            + " is older than current Android version "
+                            + SystemProperties.get(Constants.PROP_BUILD_VERSION));
+            return false;
+        }
         if (update.getTimestamp() <= SystemProperties.getLong(Constants.PROP_BUILD_DATE, 0)) {
             Log.d(TAG, update.getName() + " is older than/equal to the current build");
             return false;
@@ -93,7 +110,6 @@ public class Utils {
     public static List<UpdateInfo> parseJson(File file, boolean compatibleOnly)
             throws IOException, JSONException {
         List<UpdateInfo> updates = new ArrayList<>();
-
         StringBuilder json = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             for (String line; (line = br.readLine()) != null; ) {
@@ -130,6 +146,14 @@ public class Utils {
         return serverUrl.replace("{version}", buildVersion).replace("{device}", device);
     }
 
+    public static String getChangelogURL(Context context) {
+        String buildVersion = SystemProperties.get(Constants.PROP_BUILD_VERSION);
+        String device = SystemProperties.get(Constants.PROP_DEVICE);
+        String changelogUrl = context.getString(R.string.changelog_url);
+
+        return changelogUrl.replace("{version}", buildVersion).replace("{device}", device);
+    }
+
     public static void triggerUpdate(Context context, String downloadId) {
         final Intent intent = new Intent(context, UpdaterService.class);
         intent.setAction(UpdaterService.ACTION_INSTALL_UPDATE);
@@ -141,9 +165,10 @@ public class Utils {
         ConnectivityManager cm = context.getSystemService(ConnectivityManager.class);
         Network activeNetwork = cm.getActiveNetwork();
         NetworkCapabilities networkCapabilities = cm.getNetworkCapabilities(activeNetwork);
-        if (networkCapabilities != null &&
-                networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-                networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) {
+        if (networkCapabilities != null
+                && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                && networkCapabilities.hasCapability(
+                        NetworkCapabilities.NET_CAPABILITY_VALIDATED)) {
             return networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
                     || networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
                     || networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_USB)
@@ -151,11 +176,6 @@ public class Utils {
                     || networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
         }
         return false;
-    }
-
-    public static boolean isNetworkMetered(Context context) {
-        ConnectivityManager cm = context.getSystemService(ConnectivityManager.class);
-        return cm.isActiveNetworkMetered();
     }
 
     /**
@@ -169,6 +189,7 @@ public class Utils {
             throws IOException, JSONException {
         List<UpdateInfo> oldList = parseJson(oldJson, true);
         List<UpdateInfo> newList = parseJson(newJson, true);
+
         Set<String> oldIds = new HashSet<>();
         for (UpdateInfo update : oldList) {
             oldIds.add(update.getDownloadId());
@@ -180,13 +201,14 @@ public class Utils {
                 return true;
             }
         }
+
         return false;
     }
 
     /**
      * Get the offset to the compressed data of a file inside the given zip
      *
-     * @param zipFile   input zip file
+     * @param zipFile input zip file
      * @param entryPath full path of the entry
      * @return the offset of the compressed, or -1 if not found
      * @throws IllegalArgumentException if the given entry is not found
@@ -214,8 +236,8 @@ public class Utils {
     }
 
     public static void removeUncryptFiles(File downloadPath) {
-        File[] uncryptFiles = downloadPath.listFiles(
-                (dir, name) -> name.endsWith(Constants.UNCRYPT_FILE_EXT));
+        File[] uncryptFiles =
+                downloadPath.listFiles((dir, name) -> name.endsWith(Constants.UNCRYPT_FILE_EXT));
         if (uncryptFiles == null) {
             return;
         }
@@ -226,9 +248,9 @@ public class Utils {
     }
 
     /**
-     * Cleanup the download directory, which is assumed to be a privileged location
-     * the user can't access and that might have stale files. This can happen if
-     * the data of the application are wiped.
+     * Cleanup the download directory, which is assumed to be a privileged location the user can't
+     * access and that might have stale files. This can happen if the data of the application are
+     * wiped.
      */
     public static void cleanupDownloadsDir(Context context) {
         File downloadPath = getDownloadPath(context);
@@ -240,8 +262,7 @@ public class Utils {
         long prevTimestamp = preferences.getLong(Constants.PREF_INSTALL_OLD_TIMESTAMP, 0);
         String lastUpdatePath = preferences.getString(Constants.PREF_INSTALL_PACKAGE_PATH, null);
         boolean reinstalling = preferences.getBoolean(Constants.PREF_INSTALL_AGAIN, false);
-        if ((buildTimestamp != prevTimestamp || reinstalling) &&
-                lastUpdatePath != null) {
+        if ((buildTimestamp != prevTimestamp || reinstalling) && lastUpdatePath != null) {
             File lastUpdate = new File(lastUpdatePath);
             if (lastUpdate.exists()) {
                 //noinspection ResultOfMethodCallIgnored
@@ -265,18 +286,10 @@ public class Utils {
             return;
         }
 
-        // Ideally the database is empty when we get here
-        UpdatesDbHelper dbHelper = new UpdatesDbHelper(context);
-        List<String> knownPaths = new ArrayList<>();
-        for (UpdateInfo update : dbHelper.getUpdates()) {
-            knownPaths.add(update.getFile().getAbsolutePath());
-        }
         for (File file : files) {
-            if (!knownPaths.contains(file.getAbsolutePath())) {
-                Log.d(TAG, "Deleting " + file.getAbsolutePath());
-                //noinspection ResultOfMethodCallIgnored
-                file.delete();
-            }
+            Log.d(TAG, "Deleting " + file.getAbsolutePath());
+            //noinspection ResultOfMethodCallIgnored
+            file.delete();
         }
 
         preferences.edit().putBoolean(DOWNLOADS_CLEANUP_DONE, true).apply();
@@ -308,8 +321,8 @@ public class Utils {
     }
 
     public static boolean isABUpdate(ZipFile zipFile) {
-        return zipFile.getEntry(Constants.AB_PAYLOAD_BIN_PATH) != null &&
-                zipFile.getEntry(Constants.AB_PAYLOAD_PROPERTIES_PATH) != null;
+        return zipFile.getEntry(Constants.AB_PAYLOAD_BIN_PATH) != null
+                && zipFile.getEntry(Constants.AB_PAYLOAD_PROPERTIES_PATH) != null;
     }
 
     public static boolean isABUpdate(File file) throws IOException {
@@ -331,5 +344,23 @@ public class Utils {
 
     public static boolean isRecoveryUpdateExecPresent() {
         return new File(Constants.UPDATE_RECOVERY_EXEC).exists();
+    }
+
+    // From DeviceInfoUtils.java
+    public static String getSecurityPatch() {
+        String patch = Build.VERSION.SECURITY_PATCH;
+        if (!"".equals(patch)) {
+            try {
+                SimpleDateFormat template = new SimpleDateFormat("yyyy-MM-dd");
+                Date patchDate = template.parse(patch);
+                String format = DateFormat.getBestDateTimePattern(Locale.getDefault(), "dMMMMyyyy");
+                patch = DateFormat.format(format, patchDate).toString();
+            } catch (ParseException e) {
+                // broken parse; fall through and use the raw string
+            }
+            return patch;
+        } else {
+            return null;
+        }
     }
 }

@@ -51,18 +51,23 @@ public class UpdatesCheckReceiver extends BroadcastReceiver {
             "new_updates_notification_channel";
 
     private static void showNotification(Context context) {
-        NotificationManager notificationManager = context.getSystemService(
-                NotificationManager.class);
-        NotificationChannel notificationChannel = new NotificationChannel(
-                NEW_UPDATES_NOTIFICATION_CHANNEL,
-                context.getString(R.string.new_updates_channel_title),
-                NotificationManager.IMPORTANCE_LOW);
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context,
-                NEW_UPDATES_NOTIFICATION_CHANNEL);
+        NotificationManager notificationManager =
+                context.getSystemService(NotificationManager.class);
+        NotificationChannel notificationChannel =
+                new NotificationChannel(
+                        NEW_UPDATES_NOTIFICATION_CHANNEL,
+                        context.getString(R.string.new_updates_channel_title),
+                        NotificationManager.IMPORTANCE_LOW);
+        NotificationCompat.Builder notificationBuilder =
+                new NotificationCompat.Builder(context, NEW_UPDATES_NOTIFICATION_CHANNEL);
         notificationBuilder.setSmallIcon(R.drawable.ic_system_update);
         Intent notificationIntent = new Intent(context, UpdatesActivity.class);
-        PendingIntent intent = PendingIntent.getActivity(context, 0, notificationIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent intent =
+                PendingIntent.getActivity(
+                        context,
+                        0,
+                        notificationIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         notificationBuilder.setContentIntent(intent);
         notificationBuilder.setContentTitle(context.getString(R.string.new_updates_found_title));
         notificationBuilder.setAutoCancel(true);
@@ -89,11 +94,13 @@ public class UpdatesCheckReceiver extends BroadcastReceiver {
         PendingIntent updateCheckIntent = getRepeatingUpdatesCheckIntent(context);
         AlarmManager alarmMgr = context.getSystemService(AlarmManager.class);
         long checkAutoUpdateTime = AlarmManager.INTERVAL_DAY * 14; // 2 weeks
-        alarmMgr.setRepeating(AlarmManager.RTC, System.currentTimeMillis() +
-                checkAutoUpdateTime, checkAutoUpdateTime, updateCheckIntent);
+        alarmMgr.setRepeating(
+                AlarmManager.RTC,
+                System.currentTimeMillis() + checkAutoUpdateTime,
+                checkAutoUpdateTime,
+                updateCheckIntent);
 
-        Date nextCheckDate = new Date(System.currentTimeMillis() +
-                checkAutoUpdateTime);
+        Date nextCheckDate = new Date(System.currentTimeMillis() + checkAutoUpdateTime);
         Log.d(TAG, "Setting automatic updates check: " + nextCheckDate);
     }
 
@@ -112,7 +119,8 @@ public class UpdatesCheckReceiver extends BroadcastReceiver {
         long millisToNextCheck = AlarmManager.INTERVAL_HOUR * 2;
         PendingIntent updateCheckIntent = getUpdatesCheckIntent(context);
         AlarmManager alarmMgr = context.getSystemService(AlarmManager.class);
-        alarmMgr.set(AlarmManager.ELAPSED_REALTIME,
+        alarmMgr.set(
+                AlarmManager.ELAPSED_REALTIME,
                 SystemClock.elapsedRealtime() + millisToNextCheck,
                 updateCheckIntent);
 
@@ -153,45 +161,47 @@ public class UpdatesCheckReceiver extends BroadcastReceiver {
         final File json = Utils.getCachedUpdateList(context);
         final File jsonNew = new File(json.getAbsolutePath() + UUID.randomUUID());
         String url = Utils.getServerURL(context);
-        DownloadClient.DownloadCallback callback = new DownloadClient.DownloadCallback() {
-            @Override
-            public void onFailure(boolean cancelled) {
-                Log.e(TAG, "Could not download updates list, scheduling new check");
-                scheduleUpdatesCheck(context);
-            }
-
-            @Override
-            public void onResponse(DownloadClient.Headers headers) {
-            }
-
-            @Override
-            public void onSuccess() {
-                try {
-                    if (json.exists() && Utils.checkForNewUpdates(json, jsonNew)) {
-                        showNotification(context);
-                        updateRepeatingUpdatesCheck(context);
+        DownloadClient.DownloadCallback callback =
+                new DownloadClient.DownloadCallback() {
+                    @Override
+                    public void onFailure(boolean cancelled) {
+                        Log.e(TAG, "Could not download updates list, scheduling new check");
+                        scheduleUpdatesCheck(context);
                     }
-                    //noinspection ResultOfMethodCallIgnored
-                    jsonNew.renameTo(json);
-                    long currentMillis = System.currentTimeMillis();
-                    preferences.edit()
-                            .putLong(Constants.PREF_LAST_UPDATE_CHECK, currentMillis)
-                            .apply();
-                    // In case we set a one-shot check because of a previous failure
-                    cancelUpdatesCheck(context);
-                } catch (IOException | JSONException e) {
-                    Log.e(TAG, "Could not parse list, scheduling new check", e);
-                    scheduleUpdatesCheck(context);
-                }
-            }
-        };
+
+                    @Override
+                    public void onResponse(DownloadClient.Headers headers) {}
+
+                    @Override
+                    public void onSuccess() {
+                        try {
+                            if (json.exists() && Utils.checkForNewUpdates(json, jsonNew)) {
+                                showNotification(context);
+                                updateRepeatingUpdatesCheck(context);
+                            }
+                            //noinspection ResultOfMethodCallIgnored
+                            jsonNew.renameTo(json);
+                            long currentMillis = System.currentTimeMillis();
+                            preferences
+                                    .edit()
+                                    .putLong(Constants.PREF_LAST_UPDATE_CHECK, currentMillis)
+                                    .apply();
+                            // In case we set a one-shot check because of a previous failure
+                            cancelUpdatesCheck(context);
+                        } catch (IOException | JSONException e) {
+                            Log.e(TAG, "Could not parse list, scheduling new check", e);
+                            scheduleUpdatesCheck(context);
+                        }
+                    }
+                };
 
         try {
-            DownloadClient downloadClient = new DownloadClient.Builder()
-                    .setUrl(url)
-                    .setDestination(jsonNew)
-                    .setDownloadCallback(callback)
-                    .build();
+            DownloadClient downloadClient =
+                    new DownloadClient.Builder()
+                            .setUrl(url)
+                            .setDestination(jsonNew)
+                            .setDownloadCallback(callback)
+                            .build();
             downloadClient.start();
         } catch (IOException e) {
             Log.e(TAG, "Could not fetch list, scheduling new check", e);
