@@ -9,7 +9,7 @@ java_import {
     name: "Updater_com.atlassian.commonmark_commonmark-nodeps",
     jars: ["com/atlassian/commonmark/commonmark/0.13.0/commonmark-0.13.0.jar"],
     sdk_version: "35",
-    min_sdk_version: "14",
+    min_sdk_version: "34",
     apex_available: [
         "//apex_available:platform",
         "//apex_available:anyapex",
@@ -19,7 +19,7 @@ java_import {
 java_library_static {
     name: "Updater_com.atlassian.commonmark_commonmark",
     sdk_version: "35",
-    min_sdk_version: "14",
+    min_sdk_version: "34",
     apex_available: [
         "//apex_available:platform",
         "//apex_available:anyapex",
@@ -27,14 +27,13 @@ java_library_static {
     static_libs: [
         "Updater_com.atlassian.commonmark_commonmark-nodeps",
     ],
-    java_version: "1.7",
 }
 
 android_library_import {
     name: "Updater_io.noties.markwon_core-nodeps",
     aars: ["io/noties/markwon/core/4.6.2/core-4.6.2.aar"],
     sdk_version: "35",
-    min_sdk_version: "14",
+    min_sdk_version: "34",
     apex_available: [
         "//apex_available:platform",
         "//apex_available:anyapex",
@@ -48,7 +47,7 @@ android_library_import {
 android_library {
     name: "Updater_io.noties.markwon_core",
     sdk_version: "35",
-    min_sdk_version: "14",
+    min_sdk_version: "34",
     apex_available: [
         "//apex_available:platform",
         "//apex_available:anyapex",
@@ -59,5 +58,4 @@ android_library {
         "Updater_com.atlassian.commonmark_commonmark",
         "androidx.annotation_annotation",
     ],
-    java_version: "1.7",
 }
