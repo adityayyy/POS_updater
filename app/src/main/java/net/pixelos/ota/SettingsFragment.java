@@ -52,7 +52,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
         if (category != null) {
             if (supportsPerfMode()) {
-                mAbPerfMode.setChecked(prefs.getBoolean(Constants.PREF_AB_PERF_MODE, true));
+                mAbPerfMode.setChecked(prefs.getBoolean(Constants.PREF_AB_PERF_MODE, false));
             } else {
                 category.removePreference(mAbPerfMode);
             }
