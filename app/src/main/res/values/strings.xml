@@ -146,7 +146,7 @@
     <string name="system_update_verifying">Verifying system update</string>
     <string name="local_update_installing">Installing local update</string>
 
-    <string name="changelog_url" translatable="false">https://raw.githubusercontent.com/PixelOS-AOSP/official_devices/{version}/API/latest_changelogs/{device}.md</string>
+    <string name="changelog_url" translatable="false">https://raw.githubusercontent.com/PixelOS-AOSP/official_devices/{version}/API/updater/changelogs/{device}.md</string>
 
     <string name="general_header">General</string>
 
