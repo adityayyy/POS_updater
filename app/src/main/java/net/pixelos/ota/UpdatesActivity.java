@@ -538,7 +538,6 @@ public class UpdatesActivity extends AppCompatActivity implements UpdateImporter
         } else {
             sortedUpdates.sort((u1, u2) -> Long.compare(u2.getTimestamp(), u1.getTimestamp()));
             mLatestDownloadId = sortedUpdates.get(0).getDownloadId();
-            setChangelogs(mChangelogSection);
             updateUI(mLatestDownloadId);
         }
     }
