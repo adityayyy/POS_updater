@@ -8,21 +8,18 @@
         app:key="general">
 
         <SwitchPreferenceCompat
-            android:defaultValue="false"
             android:key="auto_updates_check"
             android:summary="@string/auto_updates_check_summary"
             android:title="@string/menu_auto_updates_check"
             app:iconSpaceReserved="false" />
 
         <SwitchPreferenceCompat
-            android:defaultValue="false"
             android:key="ab_perf_mode"
             android:summary="@string/ab_perf_mode_summary"
             android:title="@string/menu_ab_perf_mode"
             app:iconSpaceReserved="false" />
 
         <SwitchPreferenceCompat
-            android:defaultValue="false"
             android:key="update_recovery"
             android:summary="@string/update_recovery_summary"
             android:title="@string/menu_update_recovery"
