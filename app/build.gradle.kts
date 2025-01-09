@@ -14,11 +14,11 @@ apply {
 
 buildscript {
     repositories {
-        maven("https://raw.githubusercontent.com/lineage-next/gradle-generatebp/v1.19/.m2")
+        maven("https://raw.githubusercontent.com/lineage-next/gradle-generatebp/v1.21/.m2")
     }
 
     dependencies {
-        classpath("org.lineageos:gradle-generatebp:1.19")
+        classpath("org.lineageos:gradle-generatebp:1.21")
     }
 }
 
