@@ -1,4 +1,3 @@
-import org.lineageos.generatebp.GenerateBpPlugin
 import org.lineageos.generatebp.GenerateBpPluginExtension
 import org.lineageos.generatebp.models.Module
 import java.util.Properties
@@ -6,20 +5,7 @@ import java.util.Properties
 plugins {
     id("com.android.application")
     id("kotlin-android")
-}
-
-apply {
-    plugin<GenerateBpPlugin>()
-}
-
-buildscript {
-    repositories {
-        maven("https://raw.githubusercontent.com/lineage-next/gradle-generatebp/v1.21/.m2")
-    }
-
-    dependencies {
-        classpath("org.lineageos:gradle-generatebp:1.21")
-    }
+    id("org.lineageos.generatebp")
 }
 
 val keystorePropertiesFile = rootProject.file("keystore.properties")
