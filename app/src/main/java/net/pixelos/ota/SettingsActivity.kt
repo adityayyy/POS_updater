@@ -42,7 +42,6 @@ class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
 
         setSupportActionBar(toolbar)
         supportActionBar?.apply {
-            setTitle(R.string.menu_preferences)
             setDisplayHomeAsUpEnabled(true)
         }
 
