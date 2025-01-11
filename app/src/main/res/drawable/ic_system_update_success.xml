@@ -1,11 +1,17 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+     SPDX-FileCopyrightText: Material Design Authors / Google LLC
+     SPDX-License-Identifier: Apache-2.0
+-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
     android:tint="#000000"
-    android:viewportWidth="960"
-    android:viewportHeight="960">
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
     <path
         android:fillColor="@android:color/white"
-        android:pathData="M442,600 L330,488l56,-56 56,56 142,-142 56,56 -198,198ZM280,920q-33,0 -56.5,-23.5T200,840v-720q0,-33 23.5,-56.5T280,40h400q33,0 56.5,23.5T760,120v720q0,33 -23.5,56.5T680,920L280,920ZM280,800v40h400v-40L280,800ZM280,720h400v-480L280,240v480ZM280,160h400v-40L280,120v40ZM280,160v-40,40ZM280,800v40,-40Z" />
+        android:pathData="M17,1.01L7,1C5.9,1 5,1.9 5,3v18c0,1.1 0.9,2 2,2h10c1.1,0 2,-0.9 2,-2V3C19,1.9 18.1,1.01 17,1.01zM17,21H7v-1h10V21zM17,18H7V6h10V18zM17,4H7V3h10V4zM16,10.05l-1.41,-1.41l-3.54,3.54l-1.41,-1.41l-1.41,1.41L11.05,15L16,10.05z" />
+
 </vector>
