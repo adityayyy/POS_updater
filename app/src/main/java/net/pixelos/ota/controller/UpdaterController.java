@@ -510,7 +510,7 @@ public class UpdaterController {
     }
 
     public boolean isVerifyingUpdate() {
-        return mVerifyingUpdates.size() > 0;
+        return !mVerifyingUpdates.isEmpty();
     }
 
     public boolean isVerifyingUpdate(String downloadId) {

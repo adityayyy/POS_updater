@@ -973,7 +973,7 @@ public class UpdatesActivity extends AppCompatActivity implements UpdateImporter
 
     private boolean isBatteryLevelOk() {
         Intent intent = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-        if (!intent.getBooleanExtra(BatteryManager.EXTRA_PRESENT, false)) {
+        if (intent == null || !intent.getBooleanExtra(BatteryManager.EXTRA_PRESENT, false)) {
             return true;
         }
         int percent =

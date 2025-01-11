@@ -125,11 +125,11 @@ public class UpdaterService extends Service {
                                 intent.getAction())) {
                             final boolean isLocalUpdate = Update.LOCAL_ID.equals(downloadId);
                             Bundle extras = mNotificationBuilder.getExtras();
-                            if (extras != null
-                                    && !isLocalUpdate
+                            if (!isLocalUpdate
+                                    && downloadId != null
                                     && downloadId.equals(
-                                            extras.getString(
-                                                    UpdaterController.EXTRA_DOWNLOAD_ID))) {
+                                    extras.getString(
+                                            UpdaterController.EXTRA_DOWNLOAD_ID))) {
                                 mNotificationBuilder.setExtras(null);
                                 UpdateInfo update = mUpdaterController.getUpdate(downloadId);
                                 if (update.getStatus() != UpdateStatus.INSTALLED) {
