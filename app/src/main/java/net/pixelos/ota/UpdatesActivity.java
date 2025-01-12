@@ -580,7 +580,7 @@ public class UpdatesActivity extends AppCompatActivity implements UpdateImporter
             mChangelogSection.setVisibility(View.GONE);
             mWarnMeteredConnectionCard.setVisibility(View.GONE);
             mCurrentBuildInfo.setVisibility(View.VISIBLE);
-            mPrimaryActionButton.setText(R.string.check_for_update);
+            setupButtonAction(Action.CHECK_UPDATES, mPrimaryActionButton, true);
         }
     }
 
@@ -607,7 +607,7 @@ public class UpdatesActivity extends AppCompatActivity implements UpdateImporter
                                     mChangelogSection.setVisibility(View.GONE);
                                     mWarnMeteredConnectionCard.setVisibility(View.GONE);
                                     mCurrentBuildInfo.setVisibility(View.VISIBLE);
-                                    mPrimaryActionButton.setText(R.string.check_for_update);
+                                    setupButtonAction(Action.CHECK_UPDATES, mPrimaryActionButton, true);
                                 });
                     }
 
@@ -641,7 +641,7 @@ public class UpdatesActivity extends AppCompatActivity implements UpdateImporter
             mChangelogSection.setVisibility(View.GONE);
             mWarnMeteredConnectionCard.setVisibility(View.GONE);
             mCurrentBuildInfo.setVisibility(View.VISIBLE);
-            mPrimaryActionButton.setText(R.string.check_for_update);
+            setupButtonAction(Action.CHECK_UPDATES, mPrimaryActionButton, true);
             return;
         }
 
