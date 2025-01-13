@@ -24,7 +24,8 @@ public class UpdateBase implements UpdateBaseInfo {
     private String mVersion;
     private long mFileSize;
 
-    public UpdateBase() {}
+    public UpdateBase() {
+    }
 
     public UpdateBase(UpdateBaseInfo update) {
         mName = update.getName();

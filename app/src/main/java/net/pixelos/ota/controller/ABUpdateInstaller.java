@@ -73,42 +73,39 @@ class ABUpdateInstaller {
 
                     switch (status) {
                         case UpdateEngine.UpdateStatusConstants.DOWNLOADING:
-                        case UpdateEngine.UpdateStatusConstants.FINALIZING:
-                            {
-                                if (update.getStatus() != UpdateStatus.INSTALLING) {
-                                    update.setStatus(UpdateStatus.INSTALLING);
-                                    mUpdaterController.notifyUpdateChange(mDownloadId);
-                                }
-                                mProgress = Math.round(percent * 100);
-                                mUpdaterController
-                                        .getActualUpdate(mDownloadId)
-                                        .setInstallProgress(mProgress);
-                                mFinalizing =
-                                        status == UpdateEngine.UpdateStatusConstants.FINALIZING;
-                                mUpdaterController
-                                        .getActualUpdate(mDownloadId)
-                                        .setFinalizing(mFinalizing);
-                                mUpdaterController.notifyInstallProgress(mDownloadId);
-                            }
-                            break;
-
-                        case UpdateEngine.UpdateStatusConstants.UPDATED_NEED_REBOOT:
-                            {
-                                installationDone(true);
-                                update.setInstallProgress(0);
-                                update.setStatus(UpdateStatus.INSTALLED);
+                        case UpdateEngine.UpdateStatusConstants.FINALIZING: {
+                            if (update.getStatus() != UpdateStatus.INSTALLING) {
+                                update.setStatus(UpdateStatus.INSTALLING);
                                 mUpdaterController.notifyUpdateChange(mDownloadId);
                             }
-                            break;
+                            mProgress = Math.round(percent * 100);
+                            mUpdaterController
+                                    .getActualUpdate(mDownloadId)
+                                    .setInstallProgress(mProgress);
+                            mFinalizing =
+                                    status == UpdateEngine.UpdateStatusConstants.FINALIZING;
+                            mUpdaterController
+                                    .getActualUpdate(mDownloadId)
+                                    .setFinalizing(mFinalizing);
+                            mUpdaterController.notifyInstallProgress(mDownloadId);
+                        }
+                        break;
 
-                        case UpdateEngine.UpdateStatusConstants.IDLE:
-                            {
-                                // The service was restarted because we thought we were installing
-                                // an
-                                // update, but we aren't, so clear everything.
-                                installationDone(false);
-                            }
-                            break;
+                        case UpdateEngine.UpdateStatusConstants.UPDATED_NEED_REBOOT: {
+                            installationDone(true);
+                            update.setInstallProgress(0);
+                            update.setStatus(UpdateStatus.INSTALLED);
+                            mUpdaterController.notifyUpdateChange(mDownloadId);
+                        }
+                        break;
+
+                        case UpdateEngine.UpdateStatusConstants.IDLE: {
+                            // The service was restarted because we thought we were installing
+                            // an
+                            // update, but we aren't, so clear everything.
+                            installationDone(false);
+                        }
+                        break;
                     }
                 }
 
@@ -140,7 +137,7 @@ class ABUpdateInstaller {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         return downloadId.equals(pref.getString(ABUpdateInstaller.PREF_INSTALLING_AB_ID, null))
                 || TextUtils.equals(
-                        pref.getString(Constants.PREF_NEEDS_REBOOT_ID, null), downloadId);
+                pref.getString(Constants.PREF_NEEDS_REBOOT_ID, null), downloadId);
     }
 
     static synchronized boolean isInstallingUpdateSuspended(Context context) {
@@ -192,8 +189,8 @@ class ABUpdateInstaller {
             offset = Utils.getZipEntryOffset(zipFile, Constants.AB_PAYLOAD_BIN_PATH);
             ZipEntry payloadPropEntry = zipFile.getEntry(Constants.AB_PAYLOAD_PROPERTIES_PATH);
             try (InputStream is = zipFile.getInputStream(payloadPropEntry);
-                    InputStreamReader isr = new InputStreamReader(is);
-                    BufferedReader br = new BufferedReader(isr)) {
+                 InputStreamReader isr = new InputStreamReader(is);
+                 BufferedReader br = new BufferedReader(isr)) {
                 List<String> lines = new ArrayList<>();
                 for (String line; (line = br.readLine()) != null; ) {
                     lines.add(line);

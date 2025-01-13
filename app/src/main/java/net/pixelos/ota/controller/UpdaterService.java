@@ -15,6 +15,7 @@
  */
 package net.pixelos.ota.controller;
 
+import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -251,231 +252,219 @@ public class UpdaterService extends Service {
         }
     }
 
+    @SuppressLint("RestrictedApi")
     private void handleUpdateStatusChange(UpdateInfo update) {
         switch (update.getStatus()) {
-            case DELETED:
-                {
-                    stopForeground(STOP_FOREGROUND_DETACH);
-                    mNotificationBuilder.setOngoing(false);
-                    mNotificationManager.cancel(NOTIFICATION_ID);
-                    tryStopSelf();
-                    break;
-                }
-            case STARTING:
-                {
-                    mNotificationBuilder.mActions.clear();
-                    mNotificationBuilder.setProgress(0, 0, true);
-                    mNotificationStyle.setSummaryText(null);
-                    String text = getString(R.string.download_starting_notification);
-                    mNotificationStyle.bigText(text);
-                    mNotificationBuilder.setStyle(mNotificationStyle);
-                    mNotificationBuilder.setSmallIcon(android.R.drawable.stat_sys_download);
-                    mNotificationBuilder.setTicker(text);
-                    mNotificationBuilder.setOngoing(true);
-                    mNotificationBuilder.setAutoCancel(false);
-                    startForeground(
-                            NOTIFICATION_ID,
-                            mNotificationBuilder.build(),
-                            ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
-                    mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
-                    break;
-                }
-            case DOWNLOADING:
-                {
-                    String text = getString(R.string.downloading_notification);
-                    mNotificationStyle.bigText(text);
-                    mNotificationBuilder.setStyle(mNotificationStyle);
-                    mNotificationBuilder.setSmallIcon(android.R.drawable.stat_sys_download);
+            case DELETED: {
+                stopForeground(STOP_FOREGROUND_DETACH);
+                mNotificationBuilder.setOngoing(false);
+                mNotificationManager.cancel(NOTIFICATION_ID);
+                tryStopSelf();
+                break;
+            }
+            case STARTING: {
+                mNotificationBuilder.mActions.clear();
+                mNotificationBuilder.setProgress(0, 0, true);
+                mNotificationStyle.setSummaryText(null);
+                String text = getString(R.string.download_starting_notification);
+                mNotificationStyle.bigText(text);
+                mNotificationBuilder.setStyle(mNotificationStyle);
+                mNotificationBuilder.setSmallIcon(android.R.drawable.stat_sys_download);
+                mNotificationBuilder.setTicker(text);
+                mNotificationBuilder.setOngoing(true);
+                mNotificationBuilder.setAutoCancel(false);
+                startForeground(
+                        NOTIFICATION_ID,
+                        mNotificationBuilder.build(),
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+                mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
+                break;
+            }
+            case DOWNLOADING: {
+                String text = getString(R.string.downloading_notification);
+                mNotificationStyle.bigText(text);
+                mNotificationBuilder.setStyle(mNotificationStyle);
+                mNotificationBuilder.setSmallIcon(android.R.drawable.stat_sys_download);
+                mNotificationBuilder.addAction(
+                        android.R.drawable.ic_media_pause,
+                        getString(R.string.pause_button),
+                        getPausePendingIntent(update.getDownloadId()));
+                mNotificationBuilder.setTicker(text);
+                mNotificationBuilder.setOngoing(true);
+                mNotificationBuilder.setAutoCancel(false);
+                mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
+                break;
+            }
+            case PAUSED: {
+                stopForeground(STOP_FOREGROUND_DETACH);
+                // In case we pause before the first progress update
+                mNotificationBuilder.setProgress(100, update.getProgress(), false);
+                mNotificationBuilder.mActions.clear();
+                String text = getString(R.string.download_paused_notification);
+                mNotificationStyle.bigText(text);
+                mNotificationBuilder.setStyle(mNotificationStyle);
+                mNotificationBuilder.setSmallIcon(R.drawable.ic_pause);
+                mNotificationBuilder.addAction(
+                        android.R.drawable.ic_media_play,
+                        getString(R.string.resume_button),
+                        getResumePendingIntent(update.getDownloadId()));
+                mNotificationBuilder.setTicker(text);
+                mNotificationBuilder.setOngoing(false);
+                mNotificationBuilder.setAutoCancel(false);
+                mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
+                tryStopSelf();
+                break;
+            }
+            case PAUSED_ERROR: {
+                stopForeground(STOP_FOREGROUND_DETACH);
+                int progress = update.getProgress();
+                // In case we pause before the first progress update
+                mNotificationBuilder.setProgress(progress > 0 ? 100 : 0, progress, false);
+                mNotificationBuilder.mActions.clear();
+                String text = getString(R.string.download_paused_error_notification);
+                mNotificationStyle.bigText(text);
+                mNotificationBuilder.setStyle(mNotificationStyle);
+                mNotificationBuilder.setSmallIcon(android.R.drawable.stat_sys_warning);
+                mNotificationBuilder.addAction(
+                        android.R.drawable.ic_media_play,
+                        getString(R.string.resume_button),
+                        getResumePendingIntent(update.getDownloadId()));
+                mNotificationBuilder.setTicker(text);
+                mNotificationBuilder.setOngoing(false);
+                mNotificationBuilder.setAutoCancel(false);
+                mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
+                tryStopSelf();
+                break;
+            }
+            case VERIFYING: {
+                mNotificationBuilder.setProgress(0, 0, true);
+                mNotificationStyle.setSummaryText(null);
+                mNotificationBuilder.setStyle(mNotificationStyle);
+                mNotificationBuilder.setSmallIcon(R.drawable.ic_system_update);
+                mNotificationBuilder.mActions.clear();
+                String text = getString(R.string.verifying_download_notification);
+                mNotificationStyle.bigText(text);
+                mNotificationBuilder.setTicker(text);
+                mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
+                break;
+            }
+            case VERIFIED: {
+                stopForeground(STOP_FOREGROUND_DETACH);
+                mNotificationBuilder.setStyle(null);
+                mNotificationBuilder.setSmallIcon(R.drawable.ic_system_update);
+                mNotificationBuilder.setProgress(0, 0, false);
+                String text = getString(R.string.download_completed_notification);
+                mNotificationBuilder.setContentText(text);
+                mNotificationBuilder.setTicker(text);
+                mNotificationBuilder.setOngoing(false);
+                mNotificationBuilder.setAutoCancel(true);
+                mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
+                tryStopSelf();
+                break;
+            }
+            case VERIFICATION_FAILED: {
+                stopForeground(STOP_FOREGROUND_DETACH);
+                mNotificationBuilder.setStyle(null);
+                mNotificationBuilder.setSmallIcon(android.R.drawable.stat_sys_warning);
+                mNotificationBuilder.setProgress(0, 0, false);
+                String text = getString(R.string.verification_failed_notification);
+                mNotificationBuilder.setContentText(text);
+                mNotificationBuilder.setTicker(text);
+                mNotificationBuilder.setOngoing(false);
+                mNotificationBuilder.setAutoCancel(true);
+                mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
+                tryStopSelf();
+                break;
+            }
+            case INSTALLING: {
+                mNotificationBuilder.mActions.clear();
+                mNotificationBuilder.setStyle(mNotificationStyle);
+                mNotificationBuilder.setSmallIcon(R.drawable.ic_system_update);
+                mNotificationBuilder.setProgress(0, 0, false);
+                mNotificationStyle.setSummaryText(null);
+                String text =
+                        UpdateInstaller.isInstalling()
+                                ? getString(R.string.dialog_prepare_zip_message)
+                                : getString(R.string.installing_update);
+                mNotificationStyle.bigText(text);
+                if (ABUpdateInstaller.isInstallingUpdate(this)) {
                     mNotificationBuilder.addAction(
                             android.R.drawable.ic_media_pause,
-                            getString(R.string.pause_button),
-                            getPausePendingIntent(update.getDownloadId()));
-                    mNotificationBuilder.setTicker(text);
-                    mNotificationBuilder.setOngoing(true);
-                    mNotificationBuilder.setAutoCancel(false);
-                    mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
-                    break;
+                            getString(R.string.suspend_button),
+                            getSuspendInstallationPendingIntent());
                 }
-            case PAUSED:
-                {
-                    stopForeground(STOP_FOREGROUND_DETACH);
-                    // In case we pause before the first progress update
-                    mNotificationBuilder.setProgress(100, update.getProgress(), false);
-                    mNotificationBuilder.mActions.clear();
-                    String text = getString(R.string.download_paused_notification);
-                    mNotificationStyle.bigText(text);
-                    mNotificationBuilder.setStyle(mNotificationStyle);
-                    mNotificationBuilder.setSmallIcon(R.drawable.ic_pause);
-                    mNotificationBuilder.addAction(
-                            android.R.drawable.ic_media_play,
-                            getString(R.string.resume_button),
-                            getResumePendingIntent(update.getDownloadId()));
-                    mNotificationBuilder.setTicker(text);
-                    mNotificationBuilder.setOngoing(false);
-                    mNotificationBuilder.setAutoCancel(false);
-                    mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
-                    tryStopSelf();
-                    break;
-                }
-            case PAUSED_ERROR:
-                {
-                    stopForeground(STOP_FOREGROUND_DETACH);
-                    int progress = update.getProgress();
-                    // In case we pause before the first progress update
-                    mNotificationBuilder.setProgress(progress > 0 ? 100 : 0, progress, false);
-                    mNotificationBuilder.mActions.clear();
-                    String text = getString(R.string.download_paused_error_notification);
-                    mNotificationStyle.bigText(text);
-                    mNotificationBuilder.setStyle(mNotificationStyle);
-                    mNotificationBuilder.setSmallIcon(android.R.drawable.stat_sys_warning);
-                    mNotificationBuilder.addAction(
-                            android.R.drawable.ic_media_play,
-                            getString(R.string.resume_button),
-                            getResumePendingIntent(update.getDownloadId()));
-                    mNotificationBuilder.setTicker(text);
-                    mNotificationBuilder.setOngoing(false);
-                    mNotificationBuilder.setAutoCancel(false);
-                    mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
-                    tryStopSelf();
-                    break;
-                }
-            case VERIFYING:
-                {
-                    mNotificationBuilder.setProgress(0, 0, true);
-                    mNotificationStyle.setSummaryText(null);
-                    mNotificationBuilder.setStyle(mNotificationStyle);
-                    mNotificationBuilder.setSmallIcon(R.drawable.ic_system_update);
-                    mNotificationBuilder.mActions.clear();
-                    String text = getString(R.string.verifying_download_notification);
-                    mNotificationStyle.bigText(text);
-                    mNotificationBuilder.setTicker(text);
-                    mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
-                    break;
-                }
-            case VERIFIED:
-                {
-                    stopForeground(STOP_FOREGROUND_DETACH);
-                    mNotificationBuilder.setStyle(null);
-                    mNotificationBuilder.setSmallIcon(R.drawable.ic_system_update);
-                    mNotificationBuilder.setProgress(0, 0, false);
-                    String text = getString(R.string.download_completed_notification);
-                    mNotificationBuilder.setContentText(text);
-                    mNotificationBuilder.setTicker(text);
-                    mNotificationBuilder.setOngoing(false);
-                    mNotificationBuilder.setAutoCancel(true);
-                    mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
-                    tryStopSelf();
-                    break;
-                }
-            case VERIFICATION_FAILED:
-                {
-                    stopForeground(STOP_FOREGROUND_DETACH);
-                    mNotificationBuilder.setStyle(null);
-                    mNotificationBuilder.setSmallIcon(android.R.drawable.stat_sys_warning);
-                    mNotificationBuilder.setProgress(0, 0, false);
-                    String text = getString(R.string.verification_failed_notification);
-                    mNotificationBuilder.setContentText(text);
-                    mNotificationBuilder.setTicker(text);
-                    mNotificationBuilder.setOngoing(false);
-                    mNotificationBuilder.setAutoCancel(true);
-                    mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
-                    tryStopSelf();
-                    break;
-                }
-            case INSTALLING:
-                {
-                    mNotificationBuilder.mActions.clear();
-                    mNotificationBuilder.setStyle(mNotificationStyle);
-                    mNotificationBuilder.setSmallIcon(R.drawable.ic_system_update);
-                    mNotificationBuilder.setProgress(0, 0, false);
-                    mNotificationStyle.setSummaryText(null);
-                    String text =
-                            UpdateInstaller.isInstalling()
-                                    ? getString(R.string.dialog_prepare_zip_message)
-                                    : getString(R.string.installing_update);
-                    mNotificationStyle.bigText(text);
-                    if (ABUpdateInstaller.isInstallingUpdate(this)) {
-                        mNotificationBuilder.addAction(
-                                android.R.drawable.ic_media_pause,
-                                getString(R.string.suspend_button),
-                                getSuspendInstallationPendingIntent());
-                    }
-                    mNotificationBuilder.setTicker(text);
-                    mNotificationBuilder.setOngoing(true);
-                    mNotificationBuilder.setAutoCancel(false);
-                    startForeground(
-                            NOTIFICATION_ID,
-                            mNotificationBuilder.build(),
-                            ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
-                    mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
-                    break;
-                }
-            case INSTALLED:
-                {
-                    stopForeground(STOP_FOREGROUND_DETACH);
-                    mNotificationBuilder.mActions.clear();
-                    mNotificationBuilder.setStyle(null);
-                    mNotificationBuilder.setSmallIcon(R.drawable.ic_system_update);
-                    mNotificationBuilder.setProgress(0, 0, false);
-                    String text = getString(R.string.installing_update_finished);
-                    mNotificationBuilder.setContentText(text);
-                    mNotificationBuilder.addAction(
-                            R.drawable.ic_system_update,
-                            getString(R.string.action_reboot),
-                            getRebootPendingIntent());
-                    mNotificationBuilder.setTicker(text);
-                    mNotificationBuilder.setOngoing(false);
-                    mNotificationBuilder.setAutoCancel(true);
-                    mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
+                mNotificationBuilder.setTicker(text);
+                mNotificationBuilder.setOngoing(true);
+                mNotificationBuilder.setAutoCancel(false);
+                startForeground(
+                        NOTIFICATION_ID,
+                        mNotificationBuilder.build(),
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+                mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
+                break;
+            }
+            case INSTALLED: {
+                stopForeground(STOP_FOREGROUND_DETACH);
+                mNotificationBuilder.mActions.clear();
+                mNotificationBuilder.setStyle(null);
+                mNotificationBuilder.setSmallIcon(R.drawable.ic_system_update);
+                mNotificationBuilder.setProgress(0, 0, false);
+                String text = getString(R.string.installing_update_finished);
+                mNotificationBuilder.setContentText(text);
+                mNotificationBuilder.addAction(
+                        R.drawable.ic_system_update,
+                        getString(R.string.action_reboot),
+                        getRebootPendingIntent());
+                mNotificationBuilder.setTicker(text);
+                mNotificationBuilder.setOngoing(false);
+                mNotificationBuilder.setAutoCancel(true);
+                mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
 
-                    // Always delete updates
-                    mUpdaterController.deleteUpdate(update.getDownloadId());
+                // Always delete updates
+                mUpdaterController.deleteUpdate(update.getDownloadId());
 
-                    tryStopSelf();
-                    break;
-                }
-            case INSTALLATION_FAILED:
-                {
-                    stopForeground(STOP_FOREGROUND_DETACH);
-                    mNotificationBuilder.setStyle(null);
-                    mNotificationBuilder.setSmallIcon(android.R.drawable.stat_sys_warning);
-                    mNotificationBuilder.setProgress(0, 0, false);
-                    String text = getString(R.string.installing_update_error);
-                    mNotificationBuilder.setContentText(text);
-                    mNotificationBuilder.setTicker(text);
-                    mNotificationBuilder.setOngoing(false);
-                    mNotificationBuilder.setAutoCancel(true);
-                    mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
-                    tryStopSelf();
-                    break;
-                }
-            case INSTALLATION_CANCELLED:
-                {
-                    stopForeground(true);
-                    tryStopSelf();
-                    break;
-                }
-            case INSTALLATION_SUSPENDED:
-                {
-                    stopForeground(STOP_FOREGROUND_DETACH);
-                    // In case we pause before the first progress update
-                    mNotificationBuilder.setProgress(100, update.getProgress(), false);
-                    mNotificationBuilder.mActions.clear();
-                    String text = getString(R.string.installation_suspended_notification);
-                    mNotificationStyle.bigText(text);
-                    mNotificationBuilder.setStyle(mNotificationStyle);
-                    mNotificationBuilder.setSmallIcon(R.drawable.ic_pause);
-                    mNotificationBuilder.addAction(
-                            android.R.drawable.ic_media_play,
-                            getString(R.string.resume_button),
-                            getResumeInstallationPendingIntent());
-                    mNotificationBuilder.setTicker(text);
-                    mNotificationBuilder.setOngoing(true);
-                    mNotificationBuilder.setAutoCancel(false);
-                    mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
-                    tryStopSelf();
-                    break;
-                }
+                tryStopSelf();
+                break;
+            }
+            case INSTALLATION_FAILED: {
+                stopForeground(STOP_FOREGROUND_DETACH);
+                mNotificationBuilder.setStyle(null);
+                mNotificationBuilder.setSmallIcon(android.R.drawable.stat_sys_warning);
+                mNotificationBuilder.setProgress(0, 0, false);
+                String text = getString(R.string.installing_update_error);
+                mNotificationBuilder.setContentText(text);
+                mNotificationBuilder.setTicker(text);
+                mNotificationBuilder.setOngoing(false);
+                mNotificationBuilder.setAutoCancel(true);
+                mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
+                tryStopSelf();
+                break;
+            }
+            case INSTALLATION_CANCELLED: {
+                stopForeground(STOP_FOREGROUND_DETACH);
+                tryStopSelf();
+                break;
+            }
+            case INSTALLATION_SUSPENDED: {
+                stopForeground(STOP_FOREGROUND_DETACH);
+                // In case we pause before the first progress update
+                mNotificationBuilder.setProgress(100, update.getProgress(), false);
+                mNotificationBuilder.mActions.clear();
+                String text = getString(R.string.installation_suspended_notification);
+                mNotificationStyle.bigText(text);
+                mNotificationBuilder.setStyle(mNotificationStyle);
+                mNotificationBuilder.setSmallIcon(R.drawable.ic_pause);
+                mNotificationBuilder.addAction(
+                        android.R.drawable.ic_media_play,
+                        getString(R.string.resume_button),
+                        getResumeInstallationPendingIntent());
+                mNotificationBuilder.setTicker(text);
+                mNotificationBuilder.setOngoing(true);
+                mNotificationBuilder.setAutoCancel(false);
+                mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
+                tryStopSelf();
+                break;
+            }
         }
     }
 
@@ -506,8 +495,8 @@ public class UpdaterService extends Service {
                 notAB
                         ? getString(R.string.dialog_prepare_zip_message)
                         : update.getFinalizing()
-                                ? getString(R.string.finalizing_package)
-                                : getString(R.string.preparing_ota_first_boot));
+                        ? getString(R.string.finalizing_package)
+                        : getString(R.string.preparing_ota_first_boot));
         mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
     }
 

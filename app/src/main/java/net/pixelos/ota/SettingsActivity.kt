@@ -41,9 +41,7 @@ class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
         super.onCreate(savedInstanceState)
 
         setSupportActionBar(toolbar)
-        supportActionBar?.apply {
-            setDisplayHomeAsUpEnabled(true)
-        }
+        supportActionBar?.apply { setDisplayHomeAsUpEnabled(true) }
 
         if (savedInstanceState == null) {
             supportFragmentManager
@@ -114,7 +112,7 @@ class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
                     // Hide the update feature if explicitly requested.
                     // Might be the case of A-only devices using prebuilt vendor images.
                     generalCategory.removePreference(it)
-                } else if (Utils.isRecoveryUpdateExecPresent()) {
+                } else if (Utils.isRecoveryUpdateExecPresent) {
                     it.isChecked =
                         SystemProperties.getBoolean(Constants.UPDATE_RECOVERY_PROPERTY, false)
                 } else {
@@ -155,7 +153,7 @@ class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
         }
 
         private fun supportsPerfMode(): Boolean {
-            return Utils.isABDevice() && resources.getBoolean(R.bool.config_ab_perf_mode)
+            return Utils.isABDevice && resources.getBoolean(R.bool.config_ab_perf_mode)
         }
 
         private fun isPerfModeEnabled(isEnabled: Boolean): Boolean {

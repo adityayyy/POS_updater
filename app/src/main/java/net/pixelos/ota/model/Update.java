@@ -30,7 +30,8 @@ public class Update extends UpdateBase implements UpdateInfo {
     private boolean mAvailableOnline;
     private boolean mIsFinalizing;
 
-    public Update() {}
+    public Update() {
+    }
 
     public Update(UpdateInfo update) {
         super(update);

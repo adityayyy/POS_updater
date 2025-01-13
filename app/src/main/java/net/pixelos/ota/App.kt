@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 PixelOS
+ * Copyright (C) 2025 PixelOS
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package net.pixelos.ota
 
-package net.pixelos.ota;
+import android.app.Application
+import com.google.android.material.color.DynamicColors
 
-import android.app.Application;
-
-import com.google.android.material.color.DynamicColors;
-
-public class App extends Application {
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        DynamicColors.applyToActivitiesIfAvailable(this);
+class App : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        DynamicColors.applyToActivitiesIfAvailable(this)
     }
 }
