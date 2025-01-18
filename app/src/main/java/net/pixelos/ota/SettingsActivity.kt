@@ -127,10 +127,9 @@ class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
 
                 it.onPreferenceChangeListener =
                     Preference.OnPreferenceChangeListener { _, newValue ->
-                        val enableRecoveryUpdate = (newValue as String)
                         SystemProperties.set(
                             Constants.UPDATE_RECOVERY_PROPERTY,
-                            enableRecoveryUpdate
+                            newValue.toString()
                         )
                         true
                     }
