@@ -19,6 +19,8 @@ package net.pixelos.ota.misc
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -149,6 +151,14 @@ object Utils {
         val changelogUrl: String = context.getString(R.string.changelog_url)
 
         return changelogUrl.replace("{version}", buildVersion).replace("{device}", device)
+    }
+
+    @JvmStatic
+    fun getCertifiedPropsURL(context: Context): String {
+        val buildVersion: String = SystemProperties.get(Constants.PROP_BUILD_VERSION)
+        val certifiedPropsUrl: String = context.getString(R.string.certified_prop_json_url)
+
+        return certifiedPropsUrl.replace("{version}", buildVersion)
     }
 
     @JvmStatic
@@ -350,6 +360,19 @@ object Utils {
     }
 
     @JvmStatic
+     fun getLocalVersion(context: Context, pkgName: String): Long {
+        var version: Long = -1
+        try {
+            val pkgInfo: PackageInfo =
+                context.packageManager.getPackageInfo(pkgName, PackageManager.MATCH_SYSTEM_ONLY)
+            version = pkgInfo.longVersionCode
+        } catch (e: PackageManager.NameNotFoundException) {
+            // Do nothing
+        }
+        return version
+    }
+
+    @JvmStatic
     fun isUpdateCheckEnabled(context: Context): Boolean {
         val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         return prefs.getBoolean(Constants.PREF_AUTO_UPDATES_CHECK, true)
@@ -367,7 +390,7 @@ object Utils {
             var patch: String = Build.VERSION.SECURITY_PATCH
             if ("" != patch) {
                 try {
-                    val template = SimpleDateFormat("yyyy-MM-dd")
+                    val template = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                     val patchDate: Date? = template.parse(patch)
                     val format: String =
                         DateFormat.getBestDateTimePattern(Locale.getDefault(), "dMMMMyyyy")

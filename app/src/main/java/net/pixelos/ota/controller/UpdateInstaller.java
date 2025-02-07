@@ -146,7 +146,7 @@ class UpdateInstaller {
                                 perms.add(PosixFilePermission.OTHERS_READ);
                                 perms.add(PosixFilePermission.GROUP_READ);
                                 Files.setPosixFilePermissions(uncryptFile.toPath(), perms);
-                            } catch (IOException exception) {
+                            } catch (IOException ignored) {
                             }
 
                             mCanCancel = false;

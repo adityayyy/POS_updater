@@ -22,6 +22,8 @@ object Constants {
     const val PREF_LAST_UPDATE_CHECK: String = "last_update_check"
     const val PREF_AUTO_UPDATES_CHECK: String = "auto_updates_check"
     const val PREF_AB_PERF_MODE: String = "ab_perf_mode"
+    const val PREF_CERTIFIED_PROP_STATUS: String = "certified_prop_status"
+    const val PREF_CHECK_FOR_CERTIFIED_PROPS: String = "check_certified_prop"
     const val PREF_NEEDS_REBOOT_ID: String = "needs_reboot_id"
     const val UNCRYPT_FILE_EXT: String = ".uncrypt"
     const val PROP_AB_DEVICE: String = "ro.build.ab_update"

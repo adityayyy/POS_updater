@@ -23,6 +23,7 @@ import android.os.PowerManager;
 import android.os.SystemClock;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import net.pixelos.ota.UpdatesDbHelper;
@@ -147,7 +148,7 @@ public class UpdaterController {
         return new DownloadClient.DownloadCallback() {
 
             @Override
-            public void onResponse(DownloadClient.Headers headers) {
+            public void onResponse(@NonNull DownloadClient.Headers headers) {
                 final DownloadEntry entry = mDownloads.get(downloadId);
                 if (entry == null) {
                     return;
