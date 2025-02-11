@@ -222,10 +222,12 @@ class SettingsActivity : AppCompatActivity(R.layout.activity_settings) {
                 if (jsonStr.isNullOrEmpty()) {
                     showToast(R.string.certified_prop_download_failed)
                     checkForCertifiedProps.isEnabled = true
+                    updateCertifiedPropsStatus(-1)
+                    return@withContext
                 }
 
                 try {
-                    val obj = JSONObject(jsonStr!!)
+                    val obj = JSONObject(jsonStr)
                     if (obj.has("version")) {
                         val version: Int = obj.getInt("version")
                         updateCertifiedPropsStatus(version.toLong())
